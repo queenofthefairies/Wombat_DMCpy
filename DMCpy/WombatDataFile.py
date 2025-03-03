@@ -15,9 +15,9 @@ import warnings
 import copy
 from DMCpy._tools import KwargChecker, MPLKwargs, roundPower
 from DMCpy import Sample
-from DMCpy.FileStructure import HDFCounts, HDFCountsBG, HDFTranslation, HDFTranslationAlternatives, HDFTranslationDefault, HDFTranslationFunctions
-from DMCpy.FileStructure import HDFInstrumentTranslation, HDFInstrumentTranslationFunctions, extraAttributes, possibleAttributes 
-from DMCpy.FileStructure import HDFTypes, HDFUnits, shallowRead
+from DMCpy.WombatFileStructure import HDFCounts, HDFCountsBG, HDFTranslation, HDFTranslationAlternatives, HDFTranslationDefault, HDFTranslationFunctions
+from DMCpy.WombatFileStructure import HDFInstrumentTranslation, HDFInstrumentTranslationFunctions, extraAttributes, possibleAttributes 
+from DMCpy.WombatFileStructure import HDFTypes, HDFUnits, shallowRead
 
 
 scanTypes = ['Old Data','Powder','A3']
@@ -127,34 +127,36 @@ def getInstrument(file):
 
 
 @KwargChecker(include=['radius','twoTheta','verticalPosition','twoThetaPosition','forcePowder','sampleOffsetZ']+list(HDFTranslation.keys()))
-def loadDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,**kwargs):
+def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,**kwargs):
     """Load DMC data file, either powder or single crystal data.
     
     
     """
     if fileLocation is None:
-        return DataFile()
+        return WombatDataFile()
 
-    if isinstance(fileLocation,(DataFile)):
+    if isinstance(fileLocation,(WombatDataFile)):
         if fileLocation.fileType.lower() == 'powder':
-            return PowderDataFile(fileLocation,unitCell=unitCell)
+            return PowderWombatDataFile(fileLocation,unitCell=unitCell)
         elif fileLocation.fileType.lower() == 'singlecrystal':
-            return SingleCrystalDataFile(fileLocation,unitCell=unitCell)
+            return SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
         else:
-            return DataFile(fileLocation,unitCell=unitCell)
+            return WombatDataFile(fileLocation,unitCell=unitCell)
     elif not os.path.exists(fileLocation): # load file from disk
         raise FileNotFoundError('Provided file path "{}" not found.'.format(fileLocation))
 
     A3 = shallowRead([fileLocation],['A3'])[0]['A3']
+    print('A3 = {0}'.format(A3))
 
-    se_r = shallowRead([fileLocation],['se_r'])[0]['se_r']
+    # se_r is sample environment rotation axes
+    #se_r = shallowRead([fileLocation],['se_r'])[0]['se_r']
     
-    T = 'Unknown' # type of datafile
+    T = 'Unknown' # type of WombatDataFile
 
     if A3 is None: # there is no A3 values at all
         T = 'powder'
         
-    elif (len(A3) == 1 and se_r.any() is None) or forcePowder:
+    elif (len(A3) == 1) or forcePowder:# and se_r.any() is None) or forcePowder:
         T = 'powder'
     else:
         T = 'singlecrystal'
@@ -162,11 +164,11 @@ def loadDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=
     ## here be genius function to determine type of data
     
     if fileType.lower() == 'powder' or T == 'powder':
-        df = PowderDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
+        df = PowderWombatDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
     elif fileType.lower() == 'singlecrystal' or T == 'singlecrystal':
-        df = SingleCrystalDataFile(fileLocation,unitCell=unitCell)
+        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
     else:
-        df = DataFile(fileLocation,unitCell=unitCell)
+        df = WombatDataFile(fileLocation,unitCell=unitCell)
 
 
     repeats = df.countShape[1]
@@ -174,8 +176,15 @@ def loadDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=
     if not 'radius' in kwargs:
         kwargs['radius'] = 0.8
 
-    if not 'verticalPosition' in kwargs:
+    if not 'verticalPosition' not in kwargs:
         kwargs['verticalPosition'] = np.linspace(-0.1,0.1,repeats,endpoint=True)
+
+    print()
+    print('verticalPosition')
+    print(np.linspace(-0.1,0.1,repeats,endpoint=True))
+    print()
+    
+    print()
 
     if 'sampleOffsetZ' in kwargs:
         temp_sampleOffsetZ = kwargs['sampleOffsetZ']
@@ -189,7 +198,9 @@ def loadDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=
         
     if 'twoThetaPosition' in kwargs:
         if not 'twoTheta' in kwargs:
-            df.twoTheta = np.linspace(0,-132,9*128)+df.twoThetaPosition
+            #df.twoTheta = np.linspace(0,-132,9*128)+df.twoThetaPosition # for DMC
+            print('making two theta')
+            df.twoTheta = np.linspace(0,120,8*121)+df.twoThetaPosition # for Wombat
         else:
             df.twoTheta = kwargs['twoTheta']
     elif 'twoTheta' in kwargs:
@@ -216,15 +227,16 @@ def loadDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=
 class WombatDataFile(object):
     @KwargChecker()
     def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=0.0):
-        self.fileType = 'DataFile'
+        self.fileType = 'WombatDataFile'
         self._twoThetaOffset = 0.0
         self._wavelength = wavelength
         self.monochromatorDistance = 2.82 # <----------------- CHECK
         self._counts = None
         self._background = None
+        
 
         if not file is None: 
-            if isinstance(file,DataFile): # Copy everything from provided file
+            if isinstance(file,WombatDataFile): # Copy everything from provided file
                 # Copy all file settings
                 self.updateProperty(file.__dict__)
 
@@ -251,8 +263,16 @@ class WombatDataFile(object):
         with hdf.File(filePath,mode='r') as f:
 
             self.sample = Sample.Sample(sample=f.get(HDFTranslation['sample']))
-            self.countShape = f.get(HDFCounts).shape
-            self.hasBackground = not f.get(HDFCountsBG) is None
+            print('HDF counts length')
+            print(len(f.get(HDFCounts)))
+            print('f.get(HDFCounts).shape')
+            print(f.get(HDFCounts).shape)
+            print()
+            print()
+            self.countShape = (101, 128, 968) #f.get(HDFCounts).shape
+            self.hasBackground = 0 #not f.get(HDFCountsBG) is None
+            print('self.hasBackground')
+            print(self.hasBackground)
             # load standard things using the shallow read
             instr = getInstrument(f)
 
@@ -272,6 +292,9 @@ class WombatDataFile(object):
                             break
 
                 elif parameter in HDFTranslation:
+                    print('here in HDFTranslation part')
+                    print(parameter)
+                    print()
                     value = np.array(f.get(HDFTranslation[parameter]))
                     TrF= HDFTranslationFunctions
                 elif parameter in HDFInstrumentTranslation:
@@ -290,13 +313,28 @@ class WombatDataFile(object):
         self.countShape = (1,*self.countShape) # Standard shape
         if not unitCell is None:
             self.sample.unitCell = unitCell
+        print()
+        print('read in vertical position')
+        print(self.verticalPosition)
     
     def initializeQ(self):
+        print('here in intialize Q')
+        print()
+        #print(self.countShape)
+        print()
         if len(self.twoTheta.shape) == 2:
+            print('here2a')
             self.twoTheta, z = np.meshgrid(self.twoTheta[0].flatten(),self.verticalPosition,indexing='xy')
+            print()
+            print(self.twoTheta[0])
+            print()
+            print(z[0])
+            print()
+
         else:
+            print('here2b')
             self.twoTheta, z = np.meshgrid(self.twoTheta.flatten(),self.verticalPosition,indexing='xy')
-            
+        print('here now')
         self.pixelPosition = np.array([-self.radius*np.sin(np.deg2rad(self.twoTheta)),
                                     self.radius*np.cos(np.deg2rad(self.twoTheta)),
                                     -z]).reshape(3,*self.countShape[1:])
@@ -384,7 +422,8 @@ class WombatDataFile(object):
             self._detector_position = np.array([0.0]*len(self.A3))
         else:
             self._detector_position = np.asarray(twoTheta)
-        self.twoTheta = np.repeat((np.linspace(0,-132,1152) + self._detector_position + self._twoThetaOffset)[np.newaxis],self.countShape[1],axis=0)
+        #self.twoTheta = np.repeat((np.linspace(0,-132,1152) + self._detector_position + self._twoThetaOffset)[np.newaxis],self.countShape[1],axis=0) # DMC detector
+        self.twoTheta = np.repeat((np.linspace(0,120,968) + self._detector_position + self._twoThetaOffset)[np.newaxis],self.countShape[1],axis=0) # Wombat detector
         if hasattr(self,'_Ki') and hasattr(self,'twoTheta'):
             self.calculateQ()
 
@@ -495,7 +534,7 @@ class WombatDataFile(object):
         # check if counts attribute is available
 
         if len(self.countShape) <1:#not hasattr(self,'counts'):
-            raise RuntimeError('DataFile does not contain any counts. Look for self.counts but found nothing.')
+            raise RuntimeError('WombatDataFile does not contain any counts. Look for self.counts but found nothing.')
 
         if maskingFunction is None:
             if replace:
@@ -786,6 +825,7 @@ class WombatDataFile(object):
                     if self.fileType == 'powder':
                         bg = np.array(f.get(HDFCountsBG)).sum(axis=(0,1)).reshape(self.countShape)
                     else:
+                        print('here 1')
                         bg = np.array(f.get(HDFCountsBG)).reshape(self.countShape)
                 return bg
         else:
@@ -859,11 +899,13 @@ class WombatDataFile(object):
         self.sample.setProjectionVectors(p1=p1,p2=p2,p3=p3)
 
 
-class SingleCrystalDataFile(WombatDataFile):
+class SingleCrystalWombatDataFile(WombatDataFile):
     def __init__(self,fileType,*args,**kwargs):
-        super(SingleCrystalDataFile,self).__init__(fileType,*args,**kwargs)
+        super(SingleCrystalWombatDataFile,self).__init__(fileType,*args,**kwargs)
         self.fileType = 'SingleCrystal'
-        self.countShape = (self.countShape[0]*self.countShape[1],128,1152)
+        print('here in single xtal')
+        #self.countShape = (self.countShape[0]*self.countShape[1],128,1152)
+        self.countShape = (self.countShape[0]*self.countShape[1],128,968)
 
     def calcualteHKLToA3A4Z(self,H,K,L,Print=True,A4Sign=-1):
         Qx,Qy,Qz = self.sample.calculateHKLToQxQyQz(H,K,L)
@@ -882,15 +924,15 @@ class SingleCrystalDataFile(WombatDataFile):
 
     
 
-class PowderDataFile(WombatDataFile):
+class PowderWombatDataFile(WombatDataFile):
     def __init__(self,fileType,*args,**kwargs):
-        super(PowderDataFile,self).__init__(fileType,*args,**kwargs)
+        super(PowderWombatDataFile,self).__init__(fileType,*args,**kwargs)
         self.fileType = 'Powder'
 
         if 'forcePowder' in kwargs:
             if kwargs['forcePowder']:
                 self._counts = np.sum(self.counts,axis=(0,1))
-                self.countShape = (1,128,1152)
+                self.countShape = (1,128,968)
                 self.monitor = np.array([np.sum(self.monitor)])
-        self.counts.shape = (1,128,1152)
+        self.counts.shape = (1,128,968)
 

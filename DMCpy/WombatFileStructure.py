@@ -4,7 +4,7 @@ import warnings, os
 import h5py as hdf
 
 
-HDFCounts = 'entry1/data'
+HDFCounts = 'entry1/data/hmm_xy'
 HDFCountsBG = None #'entry1/data/background'
 ## Dictionary for holding hdf position of attributes. HDFTranslation['a3'] gives hdf position of 'a3'
 HDFTranslation = {'sample':'/entry1/sample',
@@ -16,48 +16,48 @@ HDFTranslation = {'sample':'/entry1/sample',
                   #'background':'entry1/DMC/detector/background',
                   #'backgroundType':'entry1/data/backgroundType',
                   'summedCounts': 'entry1/data/total_counts',
-                  'monochromatorCurvature':None,#'entry1/DMC/monochromator/curvature',
-                  'monochromatorVerticalCurvature':None,#'entry1/DMC/monochromator/curvature_vertical',
-                  'monochromatorGoniometerLower':None,#'entry1/DMC/monochromator/goniometer_lower',
-                  'monochromatorGoniometerUpper':None,#'entry1/DMC/monochromator/goniometer_upper',
+                  #'monochromatorCurvature':None,#'entry1/DMC/monochromator/curvature',
+                  #'monochromatorVerticalCurvature':None,#'entry1/DMC/monochromator/curvature_vertical',
+                  #'monochromatorGoniometerLower':None,#'entry1/DMC/monochromator/goniometer_lower',
+                  #'monochromatorGoniometerUpper':None,#'entry1/DMC/monochromator/goniometer_upper',
                   'monochromatorRotationAngle':'entry1/instrument/crystal/rotate',
                   'monochromatorTakeoffAngle':'entry1/instrument/crystal/takeoff_angle',
-                  'monochromatorTranslationLower':'entry1/instrument/crystal/translation_x',
-                  'monochromatorTranslationUpper':'entry1/instrument/crystal/translation_y',
+                  #'monochromatorTranslationLower':'entry1/instrument/crystal/translation_x',
+                  #'monochromatorTranslationUpper':'entry1/instrument/crystal/translation_y',
                   
-
-                  'wavelength':None,#'entry1/DMC/monochromator/wavelength',
-                  'wavelength_raw':None,#'entry1/DMC/monochromator/wavelength_raw',
+                  'verticalPosition':'entry1/data/y_pixel_offset',
+                  #'wavelength':None,#'entry1/DMC/monochromator/wavelength',
+                  #'wavelength_raw':None,#'entry1/DMC/monochromator/wavelength_raw',
                   'twoThetaPosition':'entry1/sample/azimuthal_angle',
-                  'mode':None,#'entry1/monitor/mode',
-                  'preset':None,#'entry1/monitor/preset',
+                  #'mode':None,#'entry1/monitor/mode',
+                  #'preset':None,#'entry1/monitor/preset',
                   'startTime':'entry1/start_time',
-                  'time':None,#'Henning',# Is to be caught by HDFTranslationAlternatives 'entry1/monitor/time',
+                  'time':'entry1/monitor/time',#'Henning',# Is to be caught by HDFTranslationAlternatives 'entry1/monitor/time',
                   'endTime':'entry1/end_time',
-                  'comment':None,#'entry1/comment',
-                  'proposal':'entry1/proposal_id',
-                  'proposalTitle':'entry1/proposal_title',
-                  'localContact':'entry1/local_contact/name',
-                  'proposalUser':'entry1/proposal_user/name',
-                  'proposalEmail':'entry1/proposal_user/email',
+                  #'comment':None,#'entry1/comment',
+                  'proposal':'entry1/sample/name',
+                  'proposalTitle':'entry1/sample/description',
+                  #'localContact':'entry1/local_contact/name',
+                  #'proposalUser':'entry1/proposal_user/name',
+                  #'proposalEmail':'entry1/proposal_user/email',
                   'user':'entry1/user/name',
                   'email':'entry1/user/email',
-                  'address':None,#'entry1/user/address',
-                  'affiliation':None,#'entry1/user/affiliation',
+                  #'address':None,#'entry1/user/address',
+                  #'affiliation':None,#'entry1/user/affiliation',
                   'A3':'entry1/sample/euler_omega',
-                  'se_r':None,#'entry1/sample/se_r',
-                  'temperature':None,#'entry1/sample/temperature',
-                  'magneticField':None,#'entry1/sample/magnetic_field',
-                  'electricField':None,#'entry1/sample/electric_field',
-                  'scanCommand':None,#'entry1/scancommand',
-                  'title':None,#'entry1/title',
-                  'absoluteTime':None,#'entry1/control/absolute_time',
-                  'protonBeam':None# 'entry1/proton_beam/data'
+                  #'se_r':None,#'entry1/sample/se_r', # this is sample environment rotation axes
+                  #'temperature':None,#'entry1/sample/temperature',
+                  #'magneticField':None,#'entry1/sample/magnetic_field',
+                  #'electricField':None,#'entry1/sample/electric_field',
+                  #'scanCommand':None,#'entry1/scancommand',
+                  'title':'entry1/sample/short_title',#'entry1/title',
+                  #'absoluteTime':None,#'entry1/control/absolute_time',
+                  #'protonBeam':None# 'entry1/proton_beam/data'
 }
 
 HDFTranslationAlternatives = { # Alternatives to the above list. NOTTICE: The above positions are not checked if an entry in HDFTranslationAlternatives is present
     'time':['entry1/monitor/time'],
-    'monitor':['entry1/monitor/bm2_counts'],
+    'monitor':['entry1/monitor/bm2_counts']
     #'protonBeam':['entry1/proton_beam/data','entry1/monitor/proton_charge']
 }
 
