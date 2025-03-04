@@ -9,12 +9,12 @@ class InteractiveViewer(object):
                  scanValueFormat=None,scanValueUnit=None,colorbar=False,outputFunction=print,
                  mainTitle='Single Step',vmin=None,vmax=None, positive2Theta=True,
                  dataLabel = 'Intensity',axis_1_label='Sum over z',axis_2_label='Sum over 2Theta',
-                 xlabel='2Theta [deg]',ylabel='z [cm]',cmap='viridis'):
+                 xlabel='2Theta [deg]',ylabel='z [mm]',cmap='viridis'):
         """
 
         args:
             - data (array): 3D array with data data
-            
+    
             - twoTheta (array): 2D array holding the 2theta values
             
             - pixelPosition (array): 3D array holding pixel position (x,y,z as function of 2theta and out of plane position)
@@ -56,6 +56,10 @@ class InteractiveViewer(object):
         # Initialize index to -1 to ensure plotting of first data
         self.index = -1
         self.data = data.transpose(0,2,1) # Transpose for quicker data plotting
+        print('In interactive viewer')
+        print(len(self.data))
+        print(len(self.data[0]))
+        print(len(self.data[0][0]))
         
         # If scan values are not provided, create [0,1,2,3,...]
         if not scanValues is None:
@@ -98,16 +102,27 @@ class InteractiveViewer(object):
         
         # Repeat for pixel position
         self.pixelPosition = pixelPosition[2]
+        print('pixelposition')
+        print(self.pixelPosition)
         self.pixelPositionStep = np.mean(np.diff(self.pixelPosition[:,0]))
         self.pixelPositionExtended = np.arange(self.pixelPosition[0,0]-self.pixelPositionStep*0.5,self.pixelPosition[-1,0]+self.pixelPositionStep*0.6,self.pixelPositionStep)
-        
+        print('pixelPositionExtended')
+        print(len(self.pixelPositionExtended))
+        self.pixelPositionExtended = self.pixelPositionExtended[0:129]
         
         self.scanSteps = len(self.scanValues)
+        print('scansteps')
+        print(self.scanSteps)
         self.scanValuesStep = minStep
         self.scanValuesExtended = np.arange(self.scanValues[0]-self.scanValuesStep*0.5,self.scanValues[-1]+self.scanValuesStep*0.6,self.scanValuesStep)
+        print('scanvaluesextended')
+        print(self.scanValuesExtended)
         
         self.scanStepExtended = np.arange(-0.5,len(self.data)-1+0.6,1.0)
-        
+        print('scanstepextended')
+        print(len(self.scanStepExtended))  
+        #print(len(self.scanStepExtended[0]))       
+        #print(len(self.scanStepExtended[0][0]))             
         # Create figure with axes. Layout is 3 x 6
         self.heights = [8,1,6] # make slider thin
         self.widths = [1,3,3,3,3,1] # Change widths
@@ -135,7 +150,7 @@ class InteractiveViewer(object):
         if self.scanSteps == 1:
             self.indexSlider = Slider(self.ax_slider, label=scanLabel, valmin=-0.5, valmax=0.5, valinit=0,valfmt=self.valfmt)
         else:
-            self.indexSlider = Slider(self.ax_slider, label=scanLabel, valmin=0, valmax=self.scanSteps-1, valinit=-1,valfmt=self.valfmt)
+            self.indexSlider = Slider(self.ax_slider, label='sample omega', valmin=0, valmax=self.scanSteps-1, valinit=-1,valfmt=self.valfmt)
         
         self.indexSlider.on_changed(lambda val: self.sliders_on_changed(val))
         
@@ -144,8 +159,9 @@ class InteractiveViewer(object):
         self.ax_singleStep.set_xlabel(self.xlabel)
         self.ax_singleStep.set_ylabel(self.ylabel)
         
-        self.ax_alphaIntegrated.set_ylabel('Scan Step')
+        self.ax_alphaIntegrated.set_ylabel('Scan step')
         self.ax_alphaIntegrated.set_xlabel(self.xlabel)
+        self.ax_thetaIntegrated.set_ylabel('Scan step')
         self.ax_thetaIntegrated.set_xlabel(self.ylabel)
         
         # Sum over two theta and alpha(out of plane)
@@ -181,7 +197,7 @@ class InteractiveViewer(object):
             # Create additional axes
             self.secax_theta = self.ax_thetaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
             self.secax_alpha = self.ax_alphaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
-            ylabel = scanLabel
+            ylabel = 'sample omega'
             if not scanValueUnit is None:
                 ylabel = ylabel+' ['+scanValueUnit+']'
             self.secax_theta.set_ylabel(ylabel)
@@ -207,7 +223,7 @@ class InteractiveViewer(object):
         
         ## Create format coords for summed axes
         
-        self.yformat = scanLabel+"={:.3f}"
+        self.yformat = 'sample omega' +"={:.3f}"
         if not scanValueUnit is None:
             self.yformat = self.yformat +' ['+scanValueUnit+']'
         

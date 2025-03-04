@@ -1,50 +1,51 @@
 # wombat DMCpy test file
 
-from DMCpy import WombatDataFile, DataFile, DataSet, _tools
+from DMCpy import WombatDataFile, DataFile, WombatDataSet, _tools
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Create a DataFile and DataSet for 565
 file = 'wombat_clinoatacamite_data/WBT0100810.nx.hdf'
 
-#df = WombatDataFile.loadWombatDataFile(file)
-#ds = DataSet.DataSet(df)
-
-# Create a DataFile and DataSet with _tools.fileListGenerator
-#twoThetaOffset = 11.0
-# scanNumbers = 'WBT0100810.nx.hdf'
-# folder = 'wombat_clinoatacamite_data'
-# year = 2025
-
 # clinoatacamite unit cell 
 unitCell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90])
 
-# # Create complete filepath
-# file = os.path.join(os.getcwd(),_tools.fileListGenerator(scanNumbers,year=year,folder)[0])
 
 df = WombatDataFile.loadWombatDataFile(file,
                                        #twoThetaPosition=twoThetaOffset, 
-                                       unitCell = unitCell)
+                                       unitCell = unitCell,
+                                       wavelength=2.41)
 
 # run the Interactive Viewer
-IA1 = df.InteractiveViewer()
-IA1.set_clim(0,20)
-IA1.set_clim_zIntegrated(0,1000)
-# ds = DataSet.DataSet(df)
+# IA1 = df.InteractiveViewer()
+# IA1.set_clim(0,20)
+# IA1.set_clim_zIntegrated(0,1000)
 
-# If we want to load several DataFiles in the DataSet
-#dataFiles = [DataFile.loadDataFile(dFP,twoThetaPosition=twoThetaOffset) for dFP in _tools.fileListGenerator(scanNumbers,folder)]
+#IA1.fig.savefig('figure0.png',format='png')
+#plt.show()
 
-#ds = DataSet.DataSet(dataFiles)
+#IA1.plotSpectrum(index=21)
 
+#IA1.fig.savefig('figure2a.png',format='png')
 
-# We can also add a unit cell to the dataFiles when loaded:
-#scanNumbers = '12153'
-#folder = 'data/SC'
+# Use above data file in data set. Must be inserted as a list
+ds = WombatDataSet.WombatDataSet([df])
 
+# Viewer3D
+Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = False)
 
-#filePath = _tools.fileListGenerator(scanNumbers,folder,year=year)
+# Set the color bar limits to 0 and 0.001
+Viewer.set_clim(0,0.001)
 
+# set axes to be equal
+Viewer.ax.axis('equal')
 
+# Find the number of steps and set viewer to middle value
+# This can also be done interactively in the viewer by pressing up or down,
+# or by scrolling the mouse wheel or clicking the sliding bar.
+zSteps = Viewer.Z.shape[-1]
+Viewer.setPlane(int(zSteps/2)-1)
 
-# # # load dataFiles
-#dataFiles = [DataFile.loadDataFile(dFP,unitCell = unitCell) for dFP in filePath]
+fig = Viewer.ax.get_figure()
+fig.savefig('figure3D.png',format='png')
+plt.show()
