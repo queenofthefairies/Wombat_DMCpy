@@ -166,6 +166,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     if fileType.lower() == 'powder' or T == 'powder':
         df = PowderWombatDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
     elif fileType.lower() == 'singlecrystal' or T == 'singlecrystal':
+        print('loading single xtal')
         df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
     else:
         df = WombatDataFile(fileLocation,unitCell=unitCell)
@@ -174,14 +175,16 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     repeats = df.countShape[1]
     # Insert standard values if not present in kwargs
     if not 'radius' in kwargs:
-        kwargs['radius'] = 0.8
+        kwargs['radius'] = 80#0.8
 
-    if not 'verticalPosition' not in kwargs:
+    if not 'verticalPosition' in kwargs:
+        print('here111')
         kwargs['verticalPosition'] = np.linspace(-0.1,0.1,repeats,endpoint=True)
+        
 
     print()
-    print('verticalPosition')
-    print(np.linspace(-0.1,0.1,repeats,endpoint=True))
+    #print('verticalPosition')
+    #print(np.linspace(-0.1,0.1,repeats,endpoint=True))
     print()
     
     print()
@@ -236,6 +239,7 @@ class WombatDataFile(object):
         self.fileType = 'WombatDataFile'
         self._twoThetaOffset = 0.0
         self._wavelength = wavelength
+        self._Ki = 2*np.pi/wavelength
         self.monochromatorDistance = 2.82 # <----------------- CHECK
         self._counts = None
         self._background = None
@@ -269,16 +273,17 @@ class WombatDataFile(object):
         with hdf.File(filePath,mode='r') as f:
 
             self.sample = Sample.Sample(sample=f.get(HDFTranslation['sample']))
-            print('HDF counts length')
-            print(len(f.get(HDFCounts)))
-            print('f.get(HDFCounts).shape')
-            print(f.get(HDFCounts).shape)
+            #print('HDF counts length')
+            A3_steps = len(f.get(HDFCounts))
+            #print('f.get(HDFCounts).shape')
+            #print(f.get(HDFCounts).shape)
+            #print()
             print()
-            print()
-            self.countShape = (101, 129, 968) #f.get(HDFCounts).shape
+            self.countShape = (A3_steps, 129, 968) #f.get(HDFCounts).shape
+            #self.countShape = (600, 129, 968) #f.get(HDFCounts).shape
             self.hasBackground = 0 #not f.get(HDFCountsBG) is None
-            print('self.hasBackground')
-            print(self.hasBackground)
+            #print('self.hasBackground')
+            #print(self.hasBackground)
             # load standard things using the shallow read
             instr = getInstrument(f)
 
@@ -289,7 +294,7 @@ class WombatDataFile(object):
                 self.original_files = np.asarray([name.decode('UTF8') for name in list(red.values())[0].get('rawdata')]) 
                 
             for parameter in HDFTranslation.keys():
-                if parameter in ['unitCell','sample','unitCell','wavelength']:
+                if parameter in ['unitCell','sample','unitCell','wavelength','verticalPosition']:
                     continue
                 if parameter in HDFTranslationAlternatives:
                     for entry in HDFTranslationAlternatives[parameter]:
@@ -322,6 +327,9 @@ class WombatDataFile(object):
         print()
         print('read in vertical position')
         print(self.verticalPosition)
+        print('len vertical position')
+        print(len(self.verticalPosition))
+
     
     def initializeQ(self):
         print('here in intialize Q')
@@ -330,11 +338,19 @@ class WombatDataFile(object):
         print()
         if len(self.twoTheta.shape) == 2:
             print('here2a')
+            print('len vertical position')
+            print(len(self.verticalPosition))
+            print()
             self.twoTheta, z = np.meshgrid(self.twoTheta[0].flatten(),self.verticalPosition,indexing='xy')
             print()
-            print(self.twoTheta[0])
+            print('len twotheta')
+            print(len(self.twoTheta))
+
+            print('len twotheta[0]')
+            print(len(self.twoTheta[0]))
             print()
-            print(z[0])
+            print('len z')
+            print(len(z))
             print()
 
         else:
@@ -346,10 +362,10 @@ class WombatDataFile(object):
                                     -z]).reshape(3,*self.countShape[1:])
         print()
         print()
-        #print(self.pixelPosition)
+        print(self.pixelPosition)
         print()
-        #print(len(self.pixelPosition[0]))
-        #print(len(self.pixelPosition[0][0]))
+        print(len(self.pixelPosition[0]))
+        print(len(self.pixelPosition[0][0]))
         
         
         #self.Monitor = self.monitor
@@ -361,6 +377,8 @@ class WombatDataFile(object):
         # Above line makes an implicit call to the self.calculateQ method!
         
         self.calculateQ()
+        print('just done calculate Q in Wom Dat File')
+        print(self.calculateQ())
         self.generateMask(maskingFunction=None)
 
 
@@ -413,6 +431,7 @@ class WombatDataFile(object):
         else:
             self.sample.rotation_angle = A3
         if hasattr(self,'ki'):
+            print('in A3 setter Wom Dat File')
             self.calculateQ()
     
 
@@ -439,18 +458,53 @@ class WombatDataFile(object):
         if hasattr(self,'_Ki') and hasattr(self,'twoTheta'):
             self.calculateQ()
 
-    
+    @property
+    def verticalPosition(self):
+        print('in vertical position property')
+        return self._verticalPosition
+
+    @verticalPosition.getter
+    def verticalPosition(self):
+        if not hasattr(self,'_verticalPosition'):
+            repeats = self.countShape[1]
+            print('in vertical position getter')
+            self._verticalPosition = np.linspace(-0.1,0.1,repeats,endpoint=True)
+        return self._verticalPosition
+
+    @verticalPosition.setter
+    def verticalPosition(self,twoTheta):
+        repeats = self.countShape[1]
+        print('in vertical position setter')
+        self._verticalPosition = np.linspace(-10,10,128,endpoint=True)
+
+    @property
+    def wavelength(self):
+        return self._wavelength
+
+    @wavelength.getter
+    def wavelength(self):
+        if not hasattr(self,'_wavelength'):
+            self._wavelength = 2.41
+        return self._wavelength
+
+    @wavelength.setter
+    def wavelength(self,wavelength):
+        self._wavelength = wavelength
+        
 
     @property
     def Ki(self):
+        print('in Ki property')
         return self._Ki
 
     @Ki.getter
     def Ki(self):
+        print('in Ki getter')
         return self._Ki
 
     @Ki.setter
     def Ki(self,Ki):
+        print('in Ki setter')
         self._Ki = Ki
         self.wavelength = np.full_like(self.wavelength,2*np.pi/Ki)
         self.calculateQ()
@@ -469,21 +523,7 @@ class WombatDataFile(object):
         self.twoTheta = np.repeat((np.linspace(0,-132,1152) + self._detector_position + self._twoThetaOffset)[np.newaxis],self.countShape[1],axis=0)
         self.calculateQ()
 
-    @property
-    def wavelength(self):
-        return self._wavelength
 
-    @wavelength.getter
-    def wavelength(self):
-        if not hasattr(self,'_wavelength'):
-            self._wavelength = 0.0
-        return self._wavelength
-
-    @wavelength.setter
-    def wavelength(self,wavelength):
-        self._wavelength = wavelength
-        self._Ki = 2*np.pi/wavelength
-        self.calculateQ()
     
     @property
     def sampleOffsetZ(self):
@@ -503,8 +543,10 @@ class WombatDataFile(object):
         
     def calculateQ(self):
         """Calculate Q and qx,qy,qz using the current A3 values"""
+        print('in calculateQ')
         if not (hasattr(self,'Ki') and hasattr(self,'twoTheta')
                 and hasattr(self,'alpha') and hasattr(self,'A3')):
+            print('early exit from calculate Q?')
             return 
 
         self.neu = np.rad2deg(np.arctan2(self.sampleOffsetZ,self.monochromatorDistance))
@@ -514,6 +556,7 @@ class WombatDataFile(object):
         self.kf = self.Ki*self.pixelPosition/np.linalg.norm(self.pixelPosition,axis=0)
            
         if self.fileType.lower() == 'singlecrystal': # A3 Scan
+            print('in calculate Q single xtal')
             # rotate kf to correct for A3
             zero = np.zeros_like(self.A3)
             ones = np.ones_like(self.A3)
@@ -920,7 +963,7 @@ class SingleCrystalWombatDataFile(WombatDataFile):
         self.fileType = 'SingleCrystal'
         print('here in single xtal')
         #self.countShape = (self.countShape[0]*self.countShape[1],128,1152) # DMC
-        self.countShape = (self.countShape[0]*self.countShape[1],129,968)
+        self.countShape = (self.countShape[0]*self.countShape[1],128,968)
 
     def calcualteHKLToA3A4Z(self,H,K,L,Print=True,A4Sign=-1):
         Qx,Qy,Qz = self.sample.calculateHKLToQxQyQz(H,K,L)
@@ -947,7 +990,7 @@ class PowderWombatDataFile(WombatDataFile):
         if 'forcePowder' in kwargs:
             if kwargs['forcePowder']:
                 self._counts = np.sum(self.counts,axis=(0,1))
-                self.countShape = (1,129,968)
+                self.countShape = (1,128,968)
                 self.monitor = np.array([np.sum(self.monitor)])
-        self.counts.shape = (1,129,968)
+        self.counts.shape = (1,128,968)
 

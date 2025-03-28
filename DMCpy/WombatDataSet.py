@@ -626,13 +626,15 @@ class WombatDataSet(object):
         return Viewer3D.Viewer3D(Data,bins,axis=axis, ax=axes, grid=grid, log=log, outputFunction=outputFunction, cmap=cmap)
     
     def binData3D(self,dqx,dqy,dqz,rlu=True,raw=False,smart=False,steps=10):
-
+        print('in bin data 3D')
         maximas = []
         minimas = []
         for df in self:
             if rlu:
                 pos = np.einsum('ij,jk',df.sample.ROT,df.q[None].reshape(3,-1))
             else:
+                print('in bindata3D q')
+                #print(q)
                 pos = df.q[None].reshape(3,-1)
                 print('in rlu false')
                 print(pos.shape)
@@ -657,6 +659,16 @@ class WombatDataSet(object):
                 q = df.q[idx[0]:idx[1]]
                 print('len q')
                 print(len(q))
+
+                print()
+                print('len(q[0])')
+                print(len(q[0]))
+                print()
+                print('len(q[0][0])')
+                print(len(q[0][0]))
+                print()
+                print('len(q[0][0][0])')
+                print(len(q[0][0][0]))
                 if raw:
                     dat = df.countsSliced(slice(idx[0],idx[1]))
                 else:

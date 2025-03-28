@@ -162,7 +162,7 @@ class Viewer3D(object):
             
         textposition = [self.Energy_slider_ax.get_position().p1[0]+0.005,self.Energy_slider_ax.get_position().p0[1]+0.005]
         self.text = self.figure.text(textposition[0], textposition[1],s=self.stringValue())
-        self.shading = 'flat'
+        self.shading = 'auto'#'flat'
         #self.imcbaxes = self.figure.add_axes([0.0, 0.2, 0.2, 0.7])
         #self.im = self.ax.imshow(self.masked_array[:,:,self.value].T,cmap=self.cmap,extent=[self.X[0],self.X[-1],self.Y[0],self.Y[-1]],origin='lower')
         
@@ -179,7 +179,7 @@ class Viewer3D(object):
 
         self.text.set_text(self.stringValue())
 
-        self.Energy_slider.set_val(self.value)
+        self.Energy_slider.set_val(0)#self.value)
 
         self.cid = self.figure.canvas.mpl_connect('button_press_event', lambda event: eventdecorator(onclick,self,event,outputFunction=outputFunction))
         
@@ -330,7 +330,9 @@ class Viewer3D(object):
         
     
     def plot(self):
+        print('trying to plot')
         self.text.set_text(self.stringValue())
+        print('text: {0}'.format(self.stringValue()))
         try:
             pass
             #self.im.set_array(self.emptyData)
@@ -338,10 +340,19 @@ class Viewer3D(object):
             pass
         if self._axesChanged:
             if pltversion>3.69:
+                print('pltversion>3.69')
                 tempData = np.ma.array(self.im.get_array())
             else:
-                tempData = np.ma.array(self.im.get_array().T)
+                print('pltversion<3.69')
+                #tempData = np.ma.array(self.im.get_array().T)
+                tempData = np.ma.array(self.im.get_array())
             tempData.mask = np.ones_like(tempData,dtype=bool)
+            #print('len tempData')
+            #print(len(tempData))
+            #print('len tempData[0]')
+            #print(len(tempData[0]))
+            #print('tempData[134]')
+            #print(tempData[134])
             self.im.set_array(tempData)
             self._axesChanged = False
         else:
