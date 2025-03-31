@@ -127,25 +127,47 @@ def getInstrument(file):
 
 
 @KwargChecker(include=['radius','twoTheta','verticalPosition','twoThetaPosition','forcePowder','wavelength','sampleOffsetZ']+list(HDFTranslation.keys()))
-def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,**kwargs):
+def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,sampleRotationAxis=None,**kwargs):
     """Load DMC data file, either powder or single crystal data.
     
     
     """
     if fileLocation is None:
+        print('in file location none')
         return WombatDataFile()
 
     if isinstance(fileLocation,(WombatDataFile)):
         if fileLocation.fileType.lower() == 'powder':
             return PowderWombatDataFile(fileLocation,unitCell=unitCell)
         elif fileLocation.fileType.lower() == 'singlecrystal':
+            print('going to single crystal')
             return SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
         else:
+            print('going to wom data file')
             return WombatDataFile(fileLocation,unitCell=unitCell)
     elif not os.path.exists(fileLocation): # load file from disk
         raise FileNotFoundError('Provided file path "{}" not found.'.format(fileLocation))
 
-    A3 = shallowRead([fileLocation],['A3'])[0]['A3']
+
+
+
+    if sampleRotationAxis == 'ephi':
+        print('sample rotation axis is euler phi 0')
+        #self.sample.rotation_angle = 'euler_phi'
+        A3 = shallowRead([fileLocation],['euler_phi'])[0]['euler_phi']
+    elif sampleRotationAxis == 'eom':
+        print('sample rotation axis is euler omega 0')
+        #self.sample.rotation_angle = 'euler_omega'
+        A3 = shallowRead([fileLocation],['euler_omega'])[0]['euler_omega']
+    elif sampleRotationAxis == 'som':
+        print('sample rotation axis is sample stage omega 0')
+        #self.sample.rotation_angle = 'sample_stage_omega'
+        A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
+    else:
+        print('sample rotation axis not specified, assuming it is sample stage omega 0')
+        #self.sample.rotation_angle = 'sample_stage_omega'
+        A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
+    #A3 = shallowRead([fileLocation],['A3'])[0]['A3']
     print('A3 = {0}'.format(A3))
 
     # se_r is sample environment rotation axes
@@ -167,7 +189,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
         df = PowderWombatDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
     elif fileType.lower() == 'singlecrystal' or T == 'singlecrystal':
         print('loading single xtal')
-        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
+        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)#,sampleRotationAxis = sampleRotationAxis)#='som')
     else:
         df = WombatDataFile(fileLocation,unitCell=unitCell)
 
@@ -235,14 +257,21 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
 
 class WombatDataFile(object):
     @KwargChecker()
-    def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=2.41):
+    def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=2.41, sampleRotationAxis = None):#='som'):
         self.fileType = 'WombatDataFile'
         self._twoThetaOffset = 0.0
-        self._wavelength = wavelength
+        self._wavelength = wavelength if wavelength is not None else 2.41
         self._Ki = 2*np.pi/wavelength
         self.monochromatorDistance = 2.82 # <----------------- CHECK
         self._counts = None
         self._background = None
+        print('trying to define wom data file')
+        print('sample rotation axis')
+        print(sampleRotationAxis)
+        self.sampleRotationAxis = 'som' if sampleRotationAxis is None else sampleRotationAxis
+        print('self.sample rotation axis')
+        print(self.sampleRotationAxis)
+        
         
 
         if not file is None: 
@@ -251,14 +280,20 @@ class WombatDataFile(object):
                 self.updateProperty(file.__dict__)
 
             elif os.path.exists(file): # load file from disk
-                self.loadFile(file,unitCell=unitCell)
+                print('in load file')
+                print('sampleRotationAxis = {0}'.format(self.sampleRotationAxis))
+                self.loadFile(file,unitCell=unitCell)#,sampleRotationAxis=sampleRotationAxis)
 
 
             else:
                 raise FileNotFoundError('Provided file path "{}" not found.'.format(file))
 
     @KwargChecker()
-    def loadFile(self,filePath,unitCell=None,wavelength=2.41, forcePowder=False):
+    def loadFile(self,filePath,unitCell=None,wavelength=2.41, forcePowder=False):#,sampleRotationAxis=self.sampleRotationAxis):
+        print()
+        print('in load file function')
+        print(self.sampleRotationAxis)
+        print()
         if not os.path.exists(filePath):
             raise FileNotFoundError('Provided file path "{}" not found.'.format(filePath))
 
@@ -320,6 +355,32 @@ class WombatDataFile(object):
                         value = getattr(value,func)(*args)
                 
                 setattr(self,parameter,value)
+            
+            if self.sampleRotationAxis == 'ephi':
+                print('sample rotation axis is euler phi 1')
+                self.sample.rotation_angle = 'euler_phi'
+                value = np.array(f.get(HDFTranslation['euler_phi']))
+                #A3 = shallowRead([fileLocation],['euler_phi'])[0]['euler_phi']
+            elif self.sampleRotationAxis == 'eom':
+                print('sample rotation axis is euler omega 1')
+                self.sample.rotation_angle = 'euler_omega'
+                value = np.array(f.get(HDFTranslation['euler_omega']))
+                #A3 = shallowRead([fileLocation],['euler_omega'])[0]['euler_omega']
+            elif self.sampleRotationAxis == 'som':
+                print('sample rotation axis is sample stage omega 1')
+                value = np.array(f.get(HDFTranslation['sample_stage_omega']))
+                self.sample.rotation_angle = 'sample_stage_omega'
+                #A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
+            else:
+                print('sample rotation axis not specified, assuming it is sample stage omega 1')
+                value = np.array(f.get(HDFTranslation['sample_stage_omega']))
+                self.sample.rotation_angle = 'sample_stage_omega'
+                #A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
+            print('about to set A3 value to')
+            print(value)
+            setattr(self,A3,value)
+            print(self.A3)
+
                 
         self.countShape = (1,*self.countShape) # Standard shape
         if not unitCell is None:
@@ -415,21 +476,38 @@ class WombatDataFile(object):
 
     @property
     def A3(self):
+        print('in A3 property')
         return self.sample.rotation_angle
 
     @A3.getter
     def A3(self):
+        print('in A3 getter')
         if not hasattr(self.sample,'rotation_angle'):
+            print('in A3 getter setting rotation angle')
             self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
+        print(self.sample.rotation_angle)
         return self.sample.rotation_angle
         
 
     @A3.setter
     def A3(self,A3):
-        if A3 is None:
-            self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
+        print('in A3 setter')
+        if sampleRotationAxis == 'ephi':
+            print('sample rotation axis is euler phi')
+            self.sample.rotation_angle = 'euler_phi'
+        elif sampleRotationAxis == 'eom':
+            print('sample rotation axis is euler omega')
+            self.sample.rotation_angle = 'euler_omega'
+        elif sampleRotationAxis == 'som':
+            print('sample rotation axis is sample stage omega')
+            self.sample.rotation_angle = 'sample_stage_omega'
         else:
-            self.sample.rotation_angle = A3
+            print('sample rotation axis not specified, assuming it is sample stage omega')
+            self.sample.rotation_angle = 'sample_stage_omega'
+        #if A3 is None:
+        #    self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
+        #else:
+        #    self.sample.rotation_angle = A3
         if hasattr(self,'ki'):
             print('in A3 setter Wom Dat File')
             self.calculateQ()

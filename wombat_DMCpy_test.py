@@ -6,22 +6,22 @@ import matplotlib.pyplot as plt
 
 # Create a DataFile and DataSet for 
 
-#test_data = 'clinoatacamite'
-test_data = 'YSiO'
+test_data = 'clinoatacamite'
+#test_data = 'YSiO'
 axis_option = 2
 
-interactive_view = 0
-view_3D = 1
+interactive_view = 1
+view_3D = 0
 
 if test_data == 'clinoatacamite':
     file = 'wombat_clinoatacamite_data/WBT0100810.nx.hdf'
-
+    sample_rotation_axis = 'eom'
     # clinoatacamite unit cell 
     unitCell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90])
 
 if test_data == 'YSiO':
     file = 'WBT0102676.nx.hdf'
-
+    sample_rotation_axis = 'ephi'
     # clinoatacamite unit cell 
     unitCell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90])
 
@@ -30,7 +30,9 @@ df = WombatDataFile.loadWombatDataFile(file,
                                        #twoThetaPosition=twoThetaOffset, 
                                        fileType = 'singlecrystal',
                                        #unitCell = unitCell,
-                                       wavelength=2.41)
+                                       wavelength=2.41,
+                                       radius=0.728,
+                                       sampleRotationAxis = sample_rotation_axis)
 
 # print()
 # print('wavelength')
@@ -81,7 +83,7 @@ if view_3D:
     Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = False)
 
     # Set the color bar limits to 0 and 0.001
-    Viewer.set_clim(0,0.001)
+    Viewer.set_clim(0,0.0001)
 
     # set axes to be equal
     Viewer.ax.axis('equal')
