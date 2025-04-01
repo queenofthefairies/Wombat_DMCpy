@@ -245,7 +245,7 @@ class WombatDataFile(object):
     @KwargChecker()
     def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=2.41, sampleRotationAxis=None):
         print()
-        print('~~~~~~~ DMCpy x Wombat: loading Wombat single crystal data ~~~~~~~')
+        print('~~~~~~~ DMCpy x Wombat: loading single crystal data file {0} ~~~~~~~'.format(file))
         self.fileType = 'WombatDataFile'
         self._twoThetaOffset = 0.0
         self._wavelength = wavelength if wavelength is not None else 2.41

@@ -9,7 +9,7 @@ class InteractiveViewer(object):
                  scanValueFormat=None,scanValueUnit=None,colorbar=False,outputFunction=print,
                  mainTitle='Single Step',vmin=None,vmax=None, positive2Theta=True,
                  dataLabel = 'Intensity (counts)',axis_1_label=r'Sum over $z$',axis_2_label=r'Sum over 2$\theta$',
-                 xlabel=r'2$\theta$ [$^\circ$]',ylabel=r'$z$ [mm]',sampleRotationAxis=None,cmap='viridis'):
+                 xlabel=r'2$\theta$ [$^\circ$]',ylabel=r'$z$ [m]',sampleRotationAxis=None,cmap='viridis'):
         """
 
         args:
@@ -187,6 +187,27 @@ class InteractiveViewer(object):
             # Create additional axes
             self.secax_theta = self.ax_thetaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
             self.secax_alpha = self.ax_alphaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
+            print('in secondary axis part')
+            #theta_xticks_list
+            #alpha_xticks_list
+            secax_yticks_list = []
+            if len(self.scanValuesExtended) <5:
+                for i in range(len(self.scanValuesExtended)):
+                    ytick = self.scanValuesExtended[i]
+                    secax_yticks_list.append(ytick)
+            else:
+                ytick_0 = np.round(self.scanValuesExtended[0],1)
+                ytick_4 = np.round(self.scanValuesExtended[-1],1)
+                ytick_2 = np.round(0.5*(ytick_0 + ytick_4),1)
+                ytick_3 = np.round(0.5*(ytick_2 + ytick_4),1)
+                ytick_1 = np.round(0.5*(ytick_0 + ytick_2),1)
+                secax_yticks_list = [ytick_0, ytick_1, ytick_2, ytick_3, ytick_4]
+            #print(self.scanValuesExtended[0])
+
+            self.secax_theta.set_yticks(secax_yticks_list)
+            self.secax_alpha.set_yticks(secax_yticks_list)
+            #print('self.toScanValue(x)')
+            #print(self.toScanValue(x))
             ylabel = self.sliderTitle
             if not scanValueUnit is None:
                 ylabel = ylabel+' ['+scanValueUnit+']'
@@ -196,7 +217,7 @@ class InteractiveViewer(object):
         
         ## Use scan values in stead of index
         def formatter(value): 
-            return self.scanValueFormat.format(self.toScanValue(value),int(np.round(value)))
+            return self.scanValueFormat.format(self.toScanValue(value),np.round(value,3))
         self.indexSlider._format = formatter 
 
         if self.scanSteps !=1: # force a redraw of the slider
@@ -227,8 +248,8 @@ class InteractiveViewer(object):
         else:
             twoThetaSumfmt = self.ylabel + ' = {:.3f} '
             
-        self.format_coord_alphaSum = lambda x,y: (alphaSumfmt + self.yformat + ' scanStep={:.0f}' ).format(x,(self.toScanValue(y)),int(np.round(y)))
-        self.format_coord_twoThetaSum = lambda x,y: (twoThetaSumfmt + self.yformat + ' scanStep={:.0f}').format(x,(self.toScanValue(y)),int(np.round(y)))
+        self.format_coord_alphaSum = lambda x,y: (alphaSumfmt + self.yformat + ' scanStep={:.0f}' ).format(x,(self.toScanValue(y)),np.round(y,3))
+        self.format_coord_twoThetaSum = lambda x,y: (twoThetaSumfmt + self.yformat + ' scanStep={:.0f}').format(x,(self.toScanValue(y)),np.round(y,3))
 
         self.format_coord_data = lambda x,y: (alphaSumfmt + twoThetaSumfmt).format(x,y)
         

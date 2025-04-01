@@ -44,7 +44,7 @@ ds = WombatDataSet.WombatDataSet(data_file_list)
 Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = False)
 
 # Set the color bar limits to 0 and 0.001
-Viewer.set_clim(0,0.00001)
+Viewer.set_clim(0,0.01)
 
 # set axes to be equal
 Viewer.ax.axis('equal')

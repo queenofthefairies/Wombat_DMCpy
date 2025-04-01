@@ -319,7 +319,7 @@ class Viewer3D(object):
         val = self.calculateValue() # value in |1/AA|
         if hasattr(self.ax,'sample'):
             val*=np.linalg.norm(self.ax.sample.inv_tr(0,0,1)) # Convert to
-        return str(np.round(val,2))+unit
+        return str(np.round(val,4))+unit
     
     def setProjection(self,value):
         """Change projection between Qx,Qy, and E, or along principal, orthogonal Q direction, or E if plotting in RLU."""

@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 
 
 
-#test_data = 'clinoatacamite'
-test_data = 'Y2SiO5'
+test_data = 'clinoatacamite'
+#test_data = 'Y2SiO5'
 
 # Either turn on interactive view or view 3D (not both)
 interactive_view = 1 # turn on interactive view (raw detector data)
