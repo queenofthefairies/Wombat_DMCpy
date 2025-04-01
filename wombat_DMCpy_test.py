@@ -1,4 +1,10 @@
-# wombat DMCpy test file
+""" wombat DMCpy test script for single data files
+this script tests functionality of the DMCpy package, wombat edition,
+- interactive viewer for looking at raw detector data of a single file
+- viewer3D for reciprocal space view for datasets containing just one HDF file
+
+Test data are clinoatacamite dataset and Y2SiO5 dataset
+"""
 
 from DMCpy import WombatDataFile, DataFile, WombatDataSet, _tools
 import numpy as np
@@ -6,12 +12,12 @@ import matplotlib.pyplot as plt
 
 
 
-test_data = 'clinoatacamite'
-#test_data = 'YSiO'
+#test_data = 'clinoatacamite'
+test_data = 'Y2SiO5'
 
 # Either turn on interactive view or view 3D (not both)
-interactive_view = 1 # turn on interactive view (raw detector data)
-view_3D = 0 # turn on 3D reciprocal space view 
+interactive_view = 0 # turn on interactive view (raw detector data)
+view_3D = 1 # turn on 3D reciprocal space view 
 
 # View 3D axis options
 axis_option = 2 # view scattering plane i.e. Qx-Qy plane 
@@ -24,8 +30,8 @@ if test_data == 'clinoatacamite':
     sample_rotation_axis = 'eom'
     unitCell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90]) #[a, b, c, alpha, beta, gamma]
 
-if test_data == 'YSiO':
-    data_dir = ''
+if test_data == 'Y2SiO5':
+    data_dir = 'wombat_Y2SiO5_data/'
     file_name = 'WBT0102676.nx.hdf'
     sample_rotation_axis = 'ephi'
     unitCell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90]) #[a, b, c, alpha, beta, gamma]

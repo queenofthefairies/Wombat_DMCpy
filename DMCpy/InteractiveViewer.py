@@ -57,7 +57,7 @@ class InteractiveViewer(object):
         self.index = -1
         self.data = data.transpose(0,2,1) # Transpose for quicker data plotting
         print()
-        print('~~~~~~~ launching Wombat single crystal raw data interactive viewer ~~~~~~~')
+        print('~~~~~~~ DMCpy x Wombat: launching single crystal raw data interactive viewer ~~~~~~~')
         print()
         
         # If scan values are not provided, create [0,1,2,3,...]

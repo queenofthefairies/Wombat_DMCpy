@@ -46,7 +46,7 @@ class Viewer3D(object):
 
         """
         print()
-        print('~~~~~~~ Wombat single crystal raw data 3D view ~~~~~~~')
+        print('~~~~~~~ DMCpy x Wombat: single crystal raw data 3D view ~~~~~~~')
         
         if len(Data)==4: # If data is provided as I, norm, mon, normcount
             with warnings.catch_warnings() as w:
