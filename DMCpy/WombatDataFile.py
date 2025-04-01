@@ -133,17 +133,17 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     
     """
     if fileLocation is None:
-        print('in file location none')
+        #print('in file location none')
         return WombatDataFile()
 
     if isinstance(fileLocation,(WombatDataFile)):
         if fileLocation.fileType.lower() == 'powder':
             return PowderWombatDataFile(fileLocation,unitCell=unitCell)
         elif fileLocation.fileType.lower() == 'singlecrystal':
-            print('going to single crystal')
+            #print('going to single crystal')
             return SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
         else:
-            print('going to wom data file')
+            #print('going to wom data file')
             return WombatDataFile(fileLocation,unitCell=unitCell)
     elif not os.path.exists(fileLocation): # load file from disk
         raise FileNotFoundError('Provided file path "{}" not found.'.format(fileLocation))
@@ -152,23 +152,23 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
 
 
     if sampleRotationAxis == 'ephi':
-        print('sample rotation axis is euler phi 0')
+        #print('sample rotation axis is euler phi 0')
         #self.sample.rotation_angle = 'euler_phi'
         A3 = shallowRead([fileLocation],['euler_phi'])[0]['euler_phi']
     elif sampleRotationAxis == 'eom':
-        print('sample rotation axis is euler omega 0')
+        #print('sample rotation axis is euler omega 0')
         #self.sample.rotation_angle = 'euler_omega'
         A3 = shallowRead([fileLocation],['euler_omega'])[0]['euler_omega']
     elif sampleRotationAxis == 'som':
-        print('sample rotation axis is sample stage omega 0')
+        #print('sample rotation axis is sample stage omega 0')
         #self.sample.rotation_angle = 'sample_stage_omega'
         A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
     else:
-        print('sample rotation axis not specified, assuming it is sample stage omega 0')
+        #print('sample rotation axis not specified, assuming it is sample stage omega 0')
         #self.sample.rotation_angle = 'sample_stage_omega'
         A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
     #A3 = shallowRead([fileLocation],['A3'])[0]['A3']
-    print('A3 = {0}'.format(A3))
+    #print('A3 = {0}'.format(A3))
 
     # se_r is sample environment rotation axes
     #se_r = shallowRead([fileLocation],['se_r'])[0]['se_r']
@@ -188,8 +188,10 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     if fileType.lower() == 'powder' or T == 'powder':
         df = PowderWombatDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
     elif fileType.lower() == 'singlecrystal' or T == 'singlecrystal':
-        print('loading single xtal')
-        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)#,sampleRotationAxis = sampleRotationAxis)#='som')
+        #print('loading single xtal')
+        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell, sampleRotationAxis = sampleRotationAxis)#='som')
+        #print('df.sampleRotationAxis')
+        #print(df.sampleRotationAxis)
     else:
         df = WombatDataFile(fileLocation,unitCell=unitCell)
 
@@ -200,16 +202,16 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
         kwargs['radius'] = 80#0.8
 
     if not 'verticalPosition' in kwargs:
-        print('here111')
+        #print('here111')
         kwargs['verticalPosition'] = np.linspace(-0.1,0.1,repeats,endpoint=True)
         
 
-    print()
-    #print('verticalPosition')
-    #print(np.linspace(-0.1,0.1,repeats,endpoint=True))
-    print()
+    #print()
+    ##print('verticalPosition')
+    ##print(np.linspace(-0.1,0.1,repeats,endpoint=True))
+    #print()
     
-    print()
+    #print()
 
     if 'sampleOffsetZ' in kwargs:
         temp_sampleOffsetZ = kwargs['sampleOffsetZ']
@@ -224,7 +226,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     if 'twoThetaPosition' in kwargs:
         if not 'twoTheta' in kwargs:
             #df.twoTheta = np.linspace(0,-132,9*128)+df.twoThetaPosition # for DMC
-            print('making two theta')
+            #print('making two theta')
             df.twoTheta = np.linspace(0,120,8*121)+df.twoThetaPosition # for Wombat
         else:
             df.twoTheta = kwargs['twoTheta']
@@ -265,12 +267,12 @@ class WombatDataFile(object):
         self.monochromatorDistance = 2.82 # <----------------- CHECK
         self._counts = None
         self._background = None
-        print('trying to define wom data file')
-        print('sample rotation axis')
-        print(sampleRotationAxis)
-        self.sampleRotationAxis = 'som' if sampleRotationAxis is None else sampleRotationAxis
-        print('self.sample rotation axis')
-        print(self.sampleRotationAxis)
+        #print('trying to define wom data file')
+        #print('sample rotation axis')
+        #print(sampleRotationAxis)
+        self.sampleRotationAxis = sampleRotationAxis
+        #print('self.sample rotation axis')
+        #print(self.sampleRotationAxis)
         
         
 
@@ -280,8 +282,8 @@ class WombatDataFile(object):
                 self.updateProperty(file.__dict__)
 
             elif os.path.exists(file): # load file from disk
-                print('in load file')
-                print('sampleRotationAxis = {0}'.format(self.sampleRotationAxis))
+                #print('in load file')
+                #print('sampleRotationAxis = {0}'.format(self.sampleRotationAxis))
                 self.loadFile(file,unitCell=unitCell)#,sampleRotationAxis=sampleRotationAxis)
 
 
@@ -290,10 +292,10 @@ class WombatDataFile(object):
 
     @KwargChecker()
     def loadFile(self,filePath,unitCell=None,wavelength=2.41, forcePowder=False):#,sampleRotationAxis=self.sampleRotationAxis):
-        print()
-        print('in load file function')
-        print(self.sampleRotationAxis)
-        print()
+        #print()
+        #print('in load file function')
+        #print(self.sampleRotationAxis)
+        #print()
         if not os.path.exists(filePath):
             raise FileNotFoundError('Provided file path "{}" not found.'.format(filePath))
 
@@ -308,17 +310,17 @@ class WombatDataFile(object):
         with hdf.File(filePath,mode='r') as f:
 
             self.sample = Sample.Sample(sample=f.get(HDFTranslation['sample']))
-            #print('HDF counts length')
+            ##print('HDF counts length')
             A3_steps = len(f.get(HDFCounts))
-            #print('f.get(HDFCounts).shape')
-            #print(f.get(HDFCounts).shape)
+            ##print('f.get(HDFCounts).shape')
+            ##print(f.get(HDFCounts).shape)
+            ##print()
             #print()
-            print()
             self.countShape = (A3_steps, 129, 968) #f.get(HDFCounts).shape
             #self.countShape = (600, 129, 968) #f.get(HDFCounts).shape
             self.hasBackground = 0 #not f.get(HDFCountsBG) is None
-            #print('self.hasBackground')
-            #print(self.hasBackground)
+            ##print('self.hasBackground')
+            ##print(self.hasBackground)
             # load standard things using the shallow read
             instr = getInstrument(f)
 
@@ -338,9 +340,9 @@ class WombatDataFile(object):
                             break
 
                 elif parameter in HDFTranslation:
-                    print('here in HDFTranslation part')
-                    print(parameter)
-                    print()
+                    #print('here in HDFTranslation part')
+                    #print(parameter)
+                    #print()
                     value = np.array(f.get(HDFTranslation[parameter]))
                     TrF= HDFTranslationFunctions
                 elif parameter in HDFInstrumentTranslation:
@@ -357,76 +359,76 @@ class WombatDataFile(object):
                 setattr(self,parameter,value)
             
             if self.sampleRotationAxis == 'ephi':
-                print('sample rotation axis is euler phi 1')
+                #print('sample rotation axis is euler phi 1')
                 self.sample.rotation_angle = 'euler_phi'
                 value = np.array(f.get(HDFTranslation['euler_phi']))
                 #A3 = shallowRead([fileLocation],['euler_phi'])[0]['euler_phi']
             elif self.sampleRotationAxis == 'eom':
-                print('sample rotation axis is euler omega 1')
+                #print('sample rotation axis is euler omega 1')
                 self.sample.rotation_angle = 'euler_omega'
                 value = np.array(f.get(HDFTranslation['euler_omega']))
                 #A3 = shallowRead([fileLocation],['euler_omega'])[0]['euler_omega']
             elif self.sampleRotationAxis == 'som':
-                print('sample rotation axis is sample stage omega 1')
+                #print('sample rotation axis is sample stage omega 1')
                 value = np.array(f.get(HDFTranslation['sample_stage_omega']))
                 self.sample.rotation_angle = 'sample_stage_omega'
                 #A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
             else:
-                print('sample rotation axis not specified, assuming it is sample stage omega 1')
+                #print('sample rotation axis not specified, assuming it is sample stage omega 1')
                 value = np.array(f.get(HDFTranslation['sample_stage_omega']))
                 self.sample.rotation_angle = 'sample_stage_omega'
                 #A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
-            print('about to set A3 value to')
-            print(value)
-            setattr(self,A3,value)
-            print(self.A3)
+            #print('about to set A3 value to')
+            #print(value)
+            setattr(self,'A3',value)
+            #print(self.A3)
 
                 
         self.countShape = (1,*self.countShape) # Standard shape
         if not unitCell is None:
             self.sample.unitCell = unitCell
-        print()
-        print('read in vertical position')
-        print(self.verticalPosition)
-        print('len vertical position')
-        print(len(self.verticalPosition))
+        #print()
+        #print('read in vertical position')
+        #print(self.verticalPosition)
+        #print('len vertical position')
+        #print(len(self.verticalPosition))
 
     
     def initializeQ(self):
-        print('here in intialize Q')
-        print()
-        #print(self.countShape)
-        print()
+        #print('here in intialize Q')
+        #print()
+        ##print(self.countShape)
+        #print()
         if len(self.twoTheta.shape) == 2:
-            print('here2a')
-            print('len vertical position')
-            print(len(self.verticalPosition))
-            print()
+            #print('here2a')
+            #print('len vertical position')
+            #print(len(self.verticalPosition))
+            #print()
             self.twoTheta, z = np.meshgrid(self.twoTheta[0].flatten(),self.verticalPosition,indexing='xy')
-            print()
-            print('len twotheta')
-            print(len(self.twoTheta))
+            #print()
+            #print('len twotheta')
+            #print(len(self.twoTheta))
 
-            print('len twotheta[0]')
-            print(len(self.twoTheta[0]))
-            print()
-            print('len z')
-            print(len(z))
-            print()
+            #print('len twotheta[0]')
+            #print(len(self.twoTheta[0]))
+            #print()
+            #print('len z')
+            #print(len(z))
+            #print()
 
         else:
-            print('here2b')
+            #print('here2b')
             self.twoTheta, z = np.meshgrid(self.twoTheta.flatten(),self.verticalPosition,indexing='xy')
-        print('here now')
+        #print('here now')
         self.pixelPosition = np.array([-self.radius*np.sin(np.deg2rad(self.twoTheta)),
                                     self.radius*np.cos(np.deg2rad(self.twoTheta)),
                                     -z]).reshape(3,*self.countShape[1:])
-        print()
-        print()
-        print(self.pixelPosition)
-        print()
-        print(len(self.pixelPosition[0]))
-        print(len(self.pixelPosition[0][0]))
+        #print()
+        #print()
+        #print(self.pixelPosition)
+        #print()
+        #print(len(self.pixelPosition[0]))
+        #print(len(self.pixelPosition[0][0]))
         
         
         #self.Monitor = self.monitor
@@ -438,8 +440,8 @@ class WombatDataFile(object):
         # Above line makes an implicit call to the self.calculateQ method!
         
         self.calculateQ()
-        print('just done calculate Q in Wom Dat File')
-        print(self.calculateQ())
+        #print('just done calculate Q in Wom Dat File')
+        #print(self.calculateQ())
         self.generateMask(maskingFunction=None)
 
 
@@ -476,40 +478,41 @@ class WombatDataFile(object):
 
     @property
     def A3(self):
-        print('in A3 property')
+        #print('in A3 property')
         return self.sample.rotation_angle
 
     @A3.getter
     def A3(self):
-        print('in A3 getter')
+        #print('in A3 getter')
         if not hasattr(self.sample,'rotation_angle'):
-            print('in A3 getter setting rotation angle')
+            #print('in A3 getter setting rotation angle')
             self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
-        print(self.sample.rotation_angle)
+        #print(self.sample.rotation_angle)
         return self.sample.rotation_angle
         
 
     @A3.setter
     def A3(self,A3):
-        print('in A3 setter')
-        if sampleRotationAxis == 'ephi':
-            print('sample rotation axis is euler phi')
+        #print('in A3 setter')
+        if self.sampleRotationAxis == 'ephi':
+            #print('sample rotation axis is euler phi')
             self.sample.rotation_angle = 'euler_phi'
-        elif sampleRotationAxis == 'eom':
-            print('sample rotation axis is euler omega')
+        elif self.sampleRotationAxis == 'eom':
+            #print('sample rotation axis is euler omega')
             self.sample.rotation_angle = 'euler_omega'
-        elif sampleRotationAxis == 'som':
-            print('sample rotation axis is sample stage omega')
+        elif self.sampleRotationAxis == 'som':
+            #print('sample rotation axis is sample stage omega')
             self.sample.rotation_angle = 'sample_stage_omega'
         else:
-            print('sample rotation axis not specified, assuming it is sample stage omega')
+            #print('sample rotation axis not specified, assuming it is sample stage omega')
             self.sample.rotation_angle = 'sample_stage_omega'
-        #if A3 is None:
-        #    self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
-        #else:
-        #    self.sample.rotation_angle = A3
+        if A3 is None:
+            self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
+        else:
+            #print('here in A3 setter')
+            self.sample.rotation_angle = A3
         if hasattr(self,'ki'):
-            print('in A3 setter Wom Dat File')
+            #print('in A3 setter Wom Dat File')
             self.calculateQ()
     
 
@@ -553,7 +556,7 @@ class WombatDataFile(object):
     def verticalPosition(self,twoTheta):
         repeats = self.countShape[1]
         print('in vertical position setter')
-        self._verticalPosition = np.linspace(-10,10,128,endpoint=True)
+        self._verticalPosition = np.linspace(-100,100,128,endpoint=True)
 
     @property
     def wavelength(self):
@@ -572,17 +575,17 @@ class WombatDataFile(object):
 
     @property
     def Ki(self):
-        print('in Ki property')
+        #print('in Ki property')
         return self._Ki
 
     @Ki.getter
     def Ki(self):
-        print('in Ki getter')
+        #print('in Ki getter')
         return self._Ki
 
     @Ki.setter
     def Ki(self,Ki):
-        print('in Ki setter')
+        #print('in Ki setter')
         self._Ki = Ki
         self.wavelength = np.full_like(self.wavelength,2*np.pi/Ki)
         self.calculateQ()
@@ -621,10 +624,10 @@ class WombatDataFile(object):
         
     def calculateQ(self):
         """Calculate Q and qx,qy,qz using the current A3 values"""
-        print('in calculateQ')
+        #print('in calculateQ')
         if not (hasattr(self,'Ki') and hasattr(self,'twoTheta')
                 and hasattr(self,'alpha') and hasattr(self,'A3')):
-            print('early exit from calculate Q?')
+            #print('early exit from calculate Q?')
             return 
 
         self.neu = np.rad2deg(np.arctan2(self.sampleOffsetZ,self.monochromatorDistance))
@@ -634,7 +637,9 @@ class WombatDataFile(object):
         self.kf = self.Ki*self.pixelPosition/np.linalg.norm(self.pixelPosition,axis=0)
            
         if self.fileType.lower() == 'singlecrystal': # A3 Scan
-            print('in calculate Q single xtal')
+            #print('in calculate Q single xtal')
+            #print('self.A3')
+            #print(self.A3)
             # rotate kf to correct for A3
             zero = np.zeros_like(self.A3)
             ones = np.ones_like(self.A3)
@@ -958,7 +963,7 @@ class WombatDataFile(object):
                     if self.fileType == 'powder':
                         bg = np.array(f.get(HDFCountsBG)).sum(axis=(0,1)).reshape(self.countShape)
                     else:
-                        print('here 1')
+                        #print('here 1')
                         bg = np.array(f.get(HDFCountsBG)).reshape(self.countShape)
                 return bg
         else:
@@ -983,7 +988,7 @@ class WombatDataFile(object):
             warnings.simplefilter("ignore")
             if self.fileType.lower() == 'singlecrystal':
                 #return np.divide(self.counts,self.normalization[np.newaxis])
-                print(self.countShape)
+                #print(self.countShape)
                 return self.counts
             else:
                 return np.divide(self.counts,self.normalization)
@@ -1004,7 +1009,7 @@ class WombatDataFile(object):
     def InteractiveViewer(self,**kwargs):
         if not self.fileType.lower() in ['singlecrystal','powder'] :
             raise AttributeError('Interactive Viewer can only be used for the new data files. Either for powder or for a single crystal A3 scan')
-        return InteractiveViewer.InteractiveViewer(self.intensity,self.twoTheta,self.pixelPosition,self.A3,scanParameter = 'A3',scanValueUnit='deg',colorbar=True,**kwargs)
+        return InteractiveViewer.InteractiveViewer(self.intensity,self.twoTheta,self.pixelPosition,self.A3,scanParameter = 'A3',scanValueUnit=r'$^\circ$',colorbar=True,**kwargs)
 
     @property
     def correctedTwoTheta(self):
@@ -1039,13 +1044,13 @@ class SingleCrystalWombatDataFile(WombatDataFile):
     def __init__(self,fileType,*args,**kwargs):
         super(SingleCrystalWombatDataFile,self).__init__(fileType,*args,**kwargs)
         self.fileType = 'SingleCrystal'
-        print('here in single xtal')
+        #print('here in single xtal')
         #self.countShape = (self.countShape[0]*self.countShape[1],128,1152) # DMC
         self.countShape = (self.countShape[0]*self.countShape[1],128,968)
 
-    def calcualteHKLToA3A4Z(self,H,K,L,Print=True,A4Sign=-1):
+    def calcualteHKLToA3A4Z(self,H,K,L,print=True,A4Sign=-1):
         Qx,Qy,Qz = self.sample.calculateHKLToQxQyQz(H,K,L)
-        if Print:
+        if print:
             A3, A4, z = converterToA3A4Z(Qx,Qy,Qz,Ki=self.Ki,Kf=self.Ki,A4Sign=A4Sign,radius=self.radius)
             print(f'Calculated angles for ({H},{K},{L}): \nA3: {np.round(A3,3)} \nA4: {np.round(A4,3)} \nz: {np.round(z,5)}\n')
             print('Disclaimer: You might want to use a peak 180 or 360 deg away.\n')

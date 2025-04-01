@@ -103,7 +103,7 @@ class Viewer3D(object):
                 self.ax = self.axNorm
                 self.xlabel = r'Qx [$A^{-1}$]'
                 self.ylabel = r'Qy [$A^{-1}$]'
-                self.zlabel = 'Qz [$A^{-1}$]'
+                self.zlabel = r'Qz [$A^{-1}$]'
                 self.rlu = False
             elif len(ax)==3: # All axes provided in order QyQz,QxQz,QxQy
                 self.axQyQz = ax[0]
@@ -156,7 +156,7 @@ class Viewer3D(object):
         self.Energy_slider.on_changed(lambda val: sliders_on_changed(self,val))
             
         if not self.rlu:
-            self.units = 3*[' 1/AA']
+            self.units = 3*[r' $\AA^{-1}$']
         else:
             self.units = 3*[' RLU']
             

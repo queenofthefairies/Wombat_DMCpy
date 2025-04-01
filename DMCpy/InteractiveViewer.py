@@ -8,8 +8,8 @@ class InteractiveViewer(object):
     def __init__(self,data,twoTheta,pixelPosition,scanValues=None,scanParameter=None,
                  scanValueFormat=None,scanValueUnit=None,colorbar=False,outputFunction=print,
                  mainTitle='Single Step',vmin=None,vmax=None, positive2Theta=True,
-                 dataLabel = 'Intensity',axis_1_label='Sum over z',axis_2_label='Sum over 2Theta',
-                 xlabel='2Theta [deg]',ylabel='z [mm]',cmap='viridis'):
+                 dataLabel = 'Intensity (counts)',axis_1_label=r'Sum over $z$',axis_2_label=r'Sum over 2$\theta$',
+                 xlabel=r'2$\theta$ [$^\circ$]',ylabel=r'$z$ [mm]',sampleRotationAxis=None,cmap='viridis'):
         """
 
         args:
@@ -74,7 +74,7 @@ class InteractiveViewer(object):
         self.cmap = cmap
         self.colorbar = colorbar
         self.mainTitle = mainTitle
-        
+        self.sliderTitle = sampleRotationAxis
         self.xlabel = xlabel
         self.ylabel = ylabel
         
@@ -150,7 +150,7 @@ class InteractiveViewer(object):
         if self.scanSteps == 1:
             self.indexSlider = Slider(self.ax_slider, label=scanLabel, valmin=-0.5, valmax=0.5, valinit=0,valfmt=self.valfmt)
         else:
-            self.indexSlider = Slider(self.ax_slider, label='sample omega', valmin=0, valmax=self.scanSteps-1, valinit=-1,valfmt=self.valfmt)
+            self.indexSlider = Slider(self.ax_slider, label=self.sliderTitle, valmin=0, valmax=self.scanSteps-1, valinit=-1,valfmt=self.valfmt)
         
         self.indexSlider.on_changed(lambda val: self.sliders_on_changed(val))
         
@@ -190,14 +190,15 @@ class InteractiveViewer(object):
         
         if not scanValues is None: # if scan values are provided
             # Linear interpolation between scan value and scan index + vice versa
-            # Using exteded range as to be sure to take into account the case of only as single scan step
+            # Using extended range as to be sure to take into account the case of only as single scan step
             self.toScanValue = lambda x: np.interp(x,np.arange(-0.5,len(self.scanStepExtended)-1),self.scanValuesExtended)
             self.fromScanValue = lambda x: np.interp(x,self.scanValuesExtended,np.arange(-0.5,len(self.scanStepExtended)-1))
-        
+            #print('self.toScanValue()')
+            #print(self.toScanValue())
             # Create additional axes
             self.secax_theta = self.ax_thetaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
             self.secax_alpha = self.ax_alphaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
-            ylabel = 'sample omega'
+            ylabel = self.sliderTitle
             if not scanValueUnit is None:
                 ylabel = ylabel+' ['+scanValueUnit+']'
             self.secax_theta.set_ylabel(ylabel)
@@ -290,9 +291,9 @@ class InteractiveViewer(object):
         
         
     def onkeypress(self,event): # pragma: no cover
-        if event.key in ['+','up']:
+        if event.key in ['+','up','right']:
             self.increaseAxis()
-        elif event.key in ['-','down']:
+        elif event.key in ['-','down','left']:
             self.decreaseAxis()
         elif event.key in ['home']:
             index = 0

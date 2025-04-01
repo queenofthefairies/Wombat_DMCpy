@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 
 test_data = 'clinoatacamite'
 #test_data = 'YSiO'
-axis_option = 2
+axis_option = 0
 
-interactive_view = 1
-view_3D = 0
+interactive_view = 0
+view_3D = 1
 
 if test_data == 'clinoatacamite':
     file = 'wombat_clinoatacamite_data/WBT0100810.nx.hdf'
@@ -64,7 +64,7 @@ print()
 
 # run the Interactive Viewer
 if interactive_view:
-    IA1 = df.InteractiveViewer()
+    IA1 = df.InteractiveViewer(sampleRotationAxis = sample_rotation_axis)
     IA1.set_clim(0,20)
     IA1.set_clim_zIntegrated(0,1000)
 
@@ -93,6 +93,7 @@ if view_3D:
     # or by scrolling the mouse wheel or clicking the sliding bar.
 
     if axis_option == 2:
+        Viewer.changeAxis(2)
         zSteps = Viewer.Z.shape[-1]
         print('steps = {0}'.format(zSteps))
         Viewer.setPlane(int(zSteps/2)-1)
@@ -104,7 +105,7 @@ if view_3D:
     # one can flip the view by clicking 0, 1, or 2 in the interactive view,
     # or do it programmatically by
     if axis_option == 0:
-        #Viewer.changeAxis(0)
+        Viewer.changeAxis(0)
         xSteps = Viewer.X.shape[-1]
         Viewer.setPlane(int(xSteps/2)-1)
         print('steps = {0}'.format(xSteps))
@@ -114,7 +115,7 @@ if view_3D:
         plt.show()
 
     if axis_option == 1:
-        #Viewer.changeAxis(1)
+        Viewer.changeAxis(1)
         ySteps = Viewer.Y.shape[-1]
         Viewer.setPlane(int(ySteps/2)-1)
         print('steps = {0}'.format(ySteps))
