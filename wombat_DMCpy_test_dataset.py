@@ -18,6 +18,7 @@ axis_option = 2 # view scattering plane i.e. Qx-Qy plane
 #axis_option = 0 # view other out-of-plane Qz-Qx
 
 data_dir = 'wombat_Y2SiO5_data/'
+# currently all HDF must be of the same dimension
 file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf']#, 'WBT0102678.nx.hdf']
 sample_rotation_axis = 'ephi'
 unit_cell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90]) #[a, b, c, alpha, beta, gamma]
@@ -78,7 +79,7 @@ if axis_option == 0:
     print('Qx steps = {0}'.format(xSteps))
 
     fig = Viewer.ax.get_figure()
-    fig.savefig('{0}_{1}_{2}_scan_Qy-Qz_plane.png'.format(sample_name,file_name[:-7],sample_rotation_axis),format='png')
+    fig.savefig('{0}_Qy-Qz_plane.png'.format(prefix_for_figures),format='png')
     plt.show()
 
 if axis_option == 1:
@@ -89,7 +90,7 @@ if axis_option == 1:
     print('Qy steps = {0}'.format(ySteps))
 
     fig = Viewer.ax.get_figure()
-    fig.savefig('{0}_{1}_{2}_scan_Qz-Qx_plane.png'.format(sample_name,file_name[:-7],sample_rotation_axis),format='png')
+    fig.savefig('{0}_Qz-Qx_plane.png'.format(prefix_for_figures),format='png')
     plt.show()
 
 # Notice that the shape of X, Y, and Z changes when the axis is flipped!
