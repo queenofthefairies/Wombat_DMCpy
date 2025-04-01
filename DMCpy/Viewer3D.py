@@ -45,7 +45,8 @@ class Viewer3D(object):
         For an example, see the `quick plotting tutorial <../Tutorials/Quick/QuickView3D.html>`_ under scripting tutorials.
 
         """
-
+        print()
+        print('~~~~~~~ Wombat single crystal raw data 3D view ~~~~~~~')
         
         if len(Data)==4: # If data is provided as I, norm, mon, normcount
             with warnings.catch_warnings() as w:
@@ -330,9 +331,7 @@ class Viewer3D(object):
         
     
     def plot(self):
-        print('trying to plot')
         self.text.set_text(self.stringValue())
-        print('text: {0}'.format(self.stringValue()))
         try:
             pass
             #self.im.set_array(self.emptyData)
@@ -340,19 +339,11 @@ class Viewer3D(object):
             pass
         if self._axesChanged:
             if pltversion>3.69:
-                print('pltversion>3.69')
                 tempData = np.ma.array(self.im.get_array())
             else:
-                print('pltversion<3.69')
-                #tempData = np.ma.array(self.im.get_array().T)
-                tempData = np.ma.array(self.im.get_array())
+                #tempData = np.ma.array(self.im.get_array().T) # DMC code
+                tempData = np.ma.array(self.im.get_array()) # for wombat
             tempData.mask = np.ones_like(tempData,dtype=bool)
-            #print('len tempData')
-            #print(len(tempData))
-            #print('len tempData[0]')
-            #print(len(tempData[0]))
-            #print('tempData[134]')
-            #print(tempData[134])
             self.im.set_array(tempData)
             self._axesChanged = False
         else:
@@ -597,9 +588,6 @@ def addColorbarSliders(self,c_min,c_max,c_minval,c_maxval,ax_cmin,ax_cmax,log=Tr
     
     fig.s_cmin.on_changed(lambda val,*arg,**kwargs: update(fig,val,*arg,bar='min',**kwargs))
     fig.s_cmax.on_changed(lambda val,*arg,**kwargs: update(fig,val,*arg,bar='max',**kwargs))
-    
-     
-    
    
     fig._savefig = fig.savefig
     

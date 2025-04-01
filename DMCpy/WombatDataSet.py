@@ -626,18 +626,16 @@ class WombatDataSet(object):
         return Viewer3D.Viewer3D(Data,bins,axis=axis, ax=axes, grid=grid, log=log, outputFunction=outputFunction, cmap=cmap)
     
     def binData3D(self,dqx,dqy,dqz,rlu=True,raw=False,smart=False,steps=10):
-        print('in bin data 3D')
         maximas = []
         minimas = []
         for df in self:
             if rlu:
                 pos = np.einsum('ij,jk',df.sample.ROT,df.q[None].reshape(3,-1))
             else:
-                print('in bindata3D q')
-                #print(q)
+                print()
+                print('Binning data 3D reciprocal space, in AA^-1')
                 pos = df.q[None].reshape(3,-1)
-                print('in rlu false')
-                print(pos.shape)
+                print()
             maximas.append(np.max(pos,axis=1))
             minimas.append(np.min(pos,axis=1))
 
@@ -654,21 +652,9 @@ class WombatDataSet(object):
             
             stepsTaken = 0
 
-                
             for idx in _tools.arange(0,len(df),steps):
                 q = df.q[idx[0]:idx[1]]
-                print('len q')
-                print(len(q))
-
-                print()
-                print('len(q[0])')
-                print(len(q[0]))
-                print()
-                print('len(q[0][0])')
-                print(len(q[0][0]))
-                print()
-                print('len(q[0][0][0])')
-                print(len(q[0][0][0]))
+                
                 if raw:
                     dat = df.countsSliced(slice(idx[0],idx[1]))
                 else:
@@ -677,26 +663,23 @@ class WombatDataSet(object):
 
                 mon = df.monitor[idx[0]:idx[1]]
                 mon=np.repeat(np.repeat(mon[:,np.newaxis],dat.shape[1],axis=1)[:,:,np.newaxis],dat.shape[2],axis=-1)
-                print('len(mon)')
-                print(len(mon))
                 
                 print(df.fileName,'from',idx[0],'to',idx[-1])
                 stepsTaken+=steps
 
                 if rlu:
-                    pos = np.einsum('ij,j...',df.sample.ROT,q).transpose(0,3,1,2) # shape -> steps,3,128,1152
+                    pos = np.einsum('ij,j...',df.sample.ROT,q).transpose(0,3,1,2) # shape -> steps,3,128,1152 for DMC, steps,3,128,968 for Wombat
 
                 else:
-                    pos = q.transpose(1,0,2,3)# shape -> steps,3,128,1152
-                    print('here in bin3D false rlu')
+                    pos = q.transpose(1,0,2,3)# shape -> steps,3,128,1152 for DMC, steps,3,128,968 for Wombat
+                    print()
+                    print('Data shape for Wombat (steps, 3, 128, 968)')
                     print(pos.shape)
                     print()
 
                 if True:
                     pos = pos.transpose(1,0,2,3)
                     boolMask = np.logical_not(df.mask[idx[0]:idx[1]].flatten())
-                    print('len boolmask')
-                    print(len(boolMask))
                     localReturndata,_ = _tools.binData3D(dqx,dqy,dqz,pos=pos.reshape(3,-1)[:,boolMask],
                                                          data=dat.flatten()[boolMask],
                                                          mon=mon.flatten()[boolMask],bins = bins)
@@ -711,7 +694,6 @@ class WombatDataSet(object):
                     
         with warnings.catch_warnings() as w:
             warnings.simplefilter("ignore")
-            print('here!')
             intensities = np.divide(returndata[0],returndata[1])
             errors = np.divide(np.sqrt(returndata[0]),returndata[1])
         NaNs = returndata[-1]==0

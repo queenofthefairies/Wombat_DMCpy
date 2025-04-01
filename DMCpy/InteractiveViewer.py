@@ -56,10 +56,9 @@ class InteractiveViewer(object):
         # Initialize index to -1 to ensure plotting of first data
         self.index = -1
         self.data = data.transpose(0,2,1) # Transpose for quicker data plotting
-        print('In interactive viewer')
-        print(len(self.data))
-        print(len(self.data[0]))
-        print(len(self.data[0][0]))
+        print()
+        print('~~~~~~~ launching Wombat single crystal raw data interactive viewer ~~~~~~~')
+        print()
         
         # If scan values are not provided, create [0,1,2,3,...]
         if not scanValues is None:
@@ -102,27 +101,17 @@ class InteractiveViewer(object):
         
         # Repeat for pixel position
         self.pixelPosition = pixelPosition[2]
-        print('pixelposition')
-        print(self.pixelPosition)
         self.pixelPositionStep = np.mean(np.diff(self.pixelPosition[:,0]))
         self.pixelPositionExtended = np.arange(self.pixelPosition[0,0]-self.pixelPositionStep*0.5,self.pixelPosition[-1,0]+self.pixelPositionStep*0.6,self.pixelPositionStep)
-        print('pixelPositionExtended')
-        print(len(self.pixelPositionExtended))
         self.pixelPositionExtended = self.pixelPositionExtended[0:129]
         
         self.scanSteps = len(self.scanValues)
-        print('scansteps')
-        print(self.scanSteps)
+
         self.scanValuesStep = minStep
         self.scanValuesExtended = np.arange(self.scanValues[0]-self.scanValuesStep*0.5,self.scanValues[-1]+self.scanValuesStep*0.6,self.scanValuesStep)
-        print('scanvaluesextended')
-        print(self.scanValuesExtended)
         
         self.scanStepExtended = np.arange(-0.5,len(self.data)-1+0.6,1.0)
-        print('scanstepextended')
-        print(len(self.scanStepExtended))  
-        #print(len(self.scanStepExtended[0]))       
-        #print(len(self.scanStepExtended[0][0]))             
+             
         # Create figure with axes. Layout is 3 x 6
         self.heights = [8,1,6] # make slider thin
         self.widths = [1,3,3,3,3,1] # Change widths
