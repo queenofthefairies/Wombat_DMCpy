@@ -6,7 +6,7 @@ this script tests functionality of the DMCpy package, wombat edition,
 Test data: Y2SiO5 dataset
 """
 
-from DMCpy import WombatDataFile, DataFile, WombatDataSet, _tools
+from DMCpy import WombatDataFile, WombatDataSet, _tools
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,7 +18,7 @@ axis_option = 2 # view scattering plane i.e. Qx-Qy plane
 #axis_option = 0 # view other out-of-plane Qz-Qx
 
 data_dir = 'wombat_Y2SiO5_data/'
-file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf', 'WBT0102678.nx.hdf']
+file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf']#, 'WBT0102678.nx.hdf']
 sample_rotation_axis = 'ephi'
 unit_cell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90]) #[a, b, c, alpha, beta, gamma]
 
@@ -53,8 +53,8 @@ Viewer.ax.axis('equal')
 # or by scrolling the mouse wheel or clicking the sliding bar.
 
 prefix_for_figures = '{0}_{1}-{2}_{3}_scan'.format(sample_name,
-                                                   file_name_list[0],
-                                                   file_name_list[1],
+                                                   file_name_list[0][:-7],
+                                                   file_name_list[-1][:-7],
                                                    sample_rotation_axis)
 
 if axis_option == 2:

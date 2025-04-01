@@ -6,7 +6,7 @@ this script tests functionality of the DMCpy package, wombat edition,
 Test data are clinoatacamite dataset and Y2SiO5 dataset
 """
 
-from DMCpy import WombatDataFile, DataFile, WombatDataSet, _tools
+from DMCpy import WombatDataFile, WombatDataSet, _tools
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 test_data = 'Y2SiO5'
 
 # Either turn on interactive view or view 3D (not both)
-interactive_view = 0 # turn on interactive view (raw detector data)
-view_3D = 1 # turn on 3D reciprocal space view 
+interactive_view = 1 # turn on interactive view (raw detector data)
+view_3D = 0 # turn on 3D reciprocal space view 
 
 # View 3D axis options
 axis_option = 2 # view scattering plane i.e. Qx-Qy plane 
