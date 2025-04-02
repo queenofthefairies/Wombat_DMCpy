@@ -2491,7 +2491,17 @@ class WombatDataSet(object):
 
                 I = df.counts[idx[0]:idx[1]]
                 Norm = df.normalization#[idx[0]:idx[1]]
+                print('len(Norm)')
+                print(len(Norm))
+                print('len(I)')
+                print(len(I))
+                print('len(I[0])')
+                print(len(I[0]))
+                print('len(I[0][0])')
+                print(len(I[0][0]))
                 Norm = np.repeat(Norm[np.newaxis],len(I),axis=0).flatten()[inside]
+                print('len(np.newaxis)')
+                print(len(np.newaxis))
                 
                 I = I.flatten()[inside]
                 dat = dat.flatten()[inside]

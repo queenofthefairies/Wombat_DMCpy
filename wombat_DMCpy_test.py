@@ -34,7 +34,7 @@ if test_data == 'Y2SiO5':
     data_dir = 'wombat_Y2SiO5_data/'
     file_name = 'WBT0102676.nx.hdf'
     sample_rotation_axis = 'ephi'
-    unitCell = np.array([6.144, 6.805, 9.112, 90, 99.55, 90]) #[a, b, c, alpha, beta, gamma]
+    unitCell = np.array([14.406, 6.728, 10.421, 90, 122.194, 90]) #[a, b, c, alpha, beta, gamma]
 
 # Load the data
 file_path = data_dir + file_name

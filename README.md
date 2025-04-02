@@ -13,8 +13,10 @@ Some small tweaks to the functionality of Interactive Viewer (raw detector view)
 
 ## original DMCpy package
 The original DMCpy package was developed by Jakob Lass, Samuel Harrison Moody, and Øystein Slagtern Fjellvåga.
+
+The code is documented [here](https://dmcpy.readthedocs.io/en/latest/index.html) -- this includes tutorials with some examples from DMC at PSI.
 For a detailed description see [their arXiv preprint](https://doi.org/10.48550/arXiv.2501.08845) 
-or the github repository [Jakob-Lass/DMCpy](https://github.com/Jakob-Lass/DMCpy) 
+and all the code can be found at the github repository [Jakob-Lass/DMCpy](https://github.com/Jakob-Lass/DMCpy) 
 
 ### Installation of original DMCpy package
 The original DMCpy package can be installed through the Python Package Manager by issuing 
