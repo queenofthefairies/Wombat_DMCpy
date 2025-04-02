@@ -2,7 +2,7 @@ DMCpy x Wombat
 ============
 Python software packaged designed for reduction of single crystal diffraction data from DMC at PSI, now adapted for single crystal data from the high intensity diffractometer Wombat at ANSTO
 
-*to avoid ambiguity the package is called* `wombatDMCpy` *in this repo**
+*to avoid ambiguity the package is called* `wombatDMCpy` *in this repo*
 
 **This DMCpy x Wombat project is still a work in progress...**
 

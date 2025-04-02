@@ -2,6 +2,7 @@
 this script tests functionality of the DMCpy package, wombat edition,
 
 - viewer3D for reciprocal space view for datasets containing just one HDF file
+(Qx, Qy, Qz plotted in inverse Angstroms)
 
 Test data = clinoatacamite dataset 
 """

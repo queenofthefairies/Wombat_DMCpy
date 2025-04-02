@@ -182,14 +182,11 @@ class InteractiveViewer(object):
             # Using extended range as to be sure to take into account the case of only as single scan step
             self.toScanValue = lambda x: np.interp(x,np.arange(-0.5,len(self.scanStepExtended)-1),self.scanValuesExtended)
             self.fromScanValue = lambda x: np.interp(x,self.scanValuesExtended,np.arange(-0.5,len(self.scanStepExtended)-1))
-            #print('self.toScanValue()')
-            #print(self.toScanValue())
+
             # Create additional axes
             self.secax_theta = self.ax_thetaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
             self.secax_alpha = self.ax_alphaIntegrated.secondary_yaxis('right', functions=(self.toScanValue, self.fromScanValue))
-            print('in secondary axis part')
-            #theta_xticks_list
-            #alpha_xticks_list
+
             secax_yticks_list = []
             if len(self.scanValuesExtended) <5:
                 for i in range(len(self.scanValuesExtended)):

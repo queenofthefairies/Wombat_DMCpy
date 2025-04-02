@@ -1,27 +1,36 @@
 """ wombat DMCpy test script for data sets
 this script tests functionality of the DMCpy package, wombat edition,
+
 - Viewer3D reciprocal space view for datasets containing multiple HDF files
 (the idea being you can stitch together many HDF to cover all of reciprocal space)
+(Qx, Qy, Qz plotted in inverse Angstroms)
 
-Test data: Y2SiO5 dataset
+Test data = Y2SiO5 dataset
+
+NB: right now, you can only stitch together HDF files with the same number of steps!
 """
-
-from DMCpy import WombatDataFile, WombatDataSet, _tools
+import sys
+# add location of Wombat DMCpy scripts
+sys.path.append('J:\wombat_instrument_work\eulerian_cradle\Wombat_DMCpy')
+import os
+from wombatDMCpy import WombatDataFile, WombatDataSet, _tools
 import numpy as np
 import matplotlib.pyplot as plt
 
+# sample name (just used when saving figs)
 sample_name = 'Y2SiO5'
+# directory where the data are
+data_dir = os.getcwd() + '/Y2SiO5_data/'
+# currently all HDF must be of the same dimension
+# here 676 and 677 both have 600 steps but 678 has 601 steps so we leave it out
+file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf']
+# Rotation axis in this case was Euler Phi
+sample_rotation_axis = 'ephi'
 
-# View 3D axis options
+# View 3D axis options, select one
 axis_option = 2 # view scattering plane i.e. Qx-Qy plane 
 #axis_option = 1 # view out-of-plane Qy-Qz
 #axis_option = 0 # view other out-of-plane Qz-Qx
-
-data_dir = 'wombat_Y2SiO5_data/'
-# currently all HDF must be of the same dimension
-file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf']#, 'WBT0102678.nx.hdf']
-sample_rotation_axis = 'ephi'
-unit_cell = np.array([14.406, 6.728, 10.421, 90, 122.194, 90]) #[a, b, c, alpha, beta, gamma]
 
 # Load the data
 data_file_list = []
@@ -31,8 +40,7 @@ for i in range(len(file_name_list)):
     df = WombatDataFile.loadWombatDataFile(file_path,
                                            #twoThetaPosition=twoThetaOffset, 
                                            fileType = 'singlecrystal',
-                                           unitCell = unit_cell,
-                                           wavelength=2.41,
+                                           wavelength=2.41, # Wavelength in angstroms
                                            radius=0.728, # Wombat sample-detector distance
                                            sampleRotationAxis = sample_rotation_axis)
     data_file_list.append(df)
@@ -40,22 +48,9 @@ for i in range(len(file_name_list)):
 # Use above data files in data set. Must be inserted as a list
 ds = WombatDataSet.WombatDataSet(data_file_list)
 
-# Define Q coordinates and HKL for the coordinates.
-q1 = [-0.061,2.135,0.00]
-q2 = [-0.613,1.277,0.035]
-HKL1 = [2,0,2]
-HKL2 = [0,0,2]
-
-# this function uses two coordinates in Q space and align them to corrdinates in HKL space
-ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
-
-# we can enforce new projection vectors by this command:
-p1 = np.array([1,0,0])
-p2 = np.array([0,0,1])
-ds.setProjectionVectors(p1,p2,p3=None)
-
 # Run the reciprocal space viewer, Viewer3D
-Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = True)
+# rlu option is false as we are plotting Qx, Qy, Qz in AA^-1
+Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = False)
 
 # Set the color bar limits to 0 and 0.001
 Viewer.set_clim(0,0.01)
@@ -63,28 +58,32 @@ Viewer.set_clim(0,0.01)
 # set axes to be equal
 Viewer.ax.axis('equal')
 
-# Find the number of steps and set viewer to middle value
-# This can also be done interactively in the viewer by pressing up or down,
-# or by scrolling the mouse wheel or clicking the sliding bar.
-
+# this is just to make naming figures when you save them easier
 prefix_for_figures = '{0}_{1}-{2}_{3}_scan'.format(sample_name,
                                                    file_name_list[0][:-7],
                                                    file_name_list[-1][:-7],
                                                    sample_rotation_axis)
 
+# Find the number of steps and set viewer to middle value
+# This can also be done interactively in the viewer by pressing up or down,
+# or by scrolling the mouse wheel or clicking the sliding bar.
 if axis_option == 2:
-    #Viewer.changeAxis(2)
+    Viewer.changeAxis(2)
     zSteps = Viewer.Z.shape[-1]
     print('viewing Qx-Qy plane')
     print('Qz steps = {0}'.format(zSteps))
     Viewer.setPlane(int(zSteps/2)-1)
 
     fig = Viewer.ax.get_figure()
-    fig.savefig('{0}_Qx-Qy_rlu_true.png'.format(prefix_for_figures),format='png')
+    # save the figure. You can also save from the matplotlib interactive window.
+    fig.savefig('{0}_Qx-Qy_plane.png'.format(prefix_for_figures),format='png')
     plt.show()
+
 # Instead of only stepping through the data with the Qx and Qy in the plane
 # one can flip the view by clicking 0, 1, or 2 in the interactive view,
-# or do it programmatically by
+# or do it programmatically by Viewer.changeAxis(1) etc.
+# Notice that the shape of X, Y, and Z changes when the axis is flipped!
+# The last dimension is alway 'orthogonal' to the view.
 if axis_option == 0:
     Viewer.changeAxis(0)
     xSteps = Viewer.X.shape[-1]
@@ -93,9 +92,10 @@ if axis_option == 0:
     print('Qx steps = {0}'.format(xSteps))
 
     fig = Viewer.ax.get_figure()
-    fig.savefig('{0}_Qy-Qz_rlu_true.png'.format(prefix_for_figures),format='png')
+    fig.savefig('{0}_Qy-Qz_plane.png'.format(prefix_for_figures),format='png')
     plt.show()
 
+# Similar thing, changing to the other axis option
 if axis_option == 1:
     Viewer.changeAxis(1)
     ySteps = Viewer.Y.shape[-1]
@@ -104,8 +104,5 @@ if axis_option == 1:
     print('Qy steps = {0}'.format(ySteps))
 
     fig = Viewer.ax.get_figure()
-    fig.savefig('{0}_Qz-Qx_rlu_true.png'.format(prefix_for_figures),format='png')
+    fig.savefig('{0}_Qz-Qx_plane.png'.format(prefix_for_figures),format='png')
     plt.show()
-
-# Notice that the shape of X, Y, and Z changes when the axis is flipped!
-# The last dimension is alway 'orthogonal' to the view.
