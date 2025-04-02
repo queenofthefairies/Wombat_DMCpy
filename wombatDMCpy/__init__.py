@@ -9,7 +9,7 @@ __author__ = 'Jakob Lass, Sam Moody, Øystein S. Fjellvåg'
 # calibrationFile =  os.path.join(installFolder,'calibrationDict.dat')
 
 installFolder = os.path.abspath(os.path.join(os.path.split(__file__)[0],'..'))
-calibrationFile =  os.path.join(installFolder,'DMCpy','calibrationDict.dat')
+calibrationFile =  os.path.join(installFolder,'wombatDMCpy','calibrationDict.dat')
 
 try:
     with open(calibrationFile,'rb') as f:

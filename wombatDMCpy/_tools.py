@@ -9,9 +9,9 @@ from itertools import product
 import pickle
 import h5py as hdf
 import datetime, shutil
-from DMCpy.FileStructure import shallowRead, HDFTranslationAlternatives, HDFTranslation, HDFCounts
+from wombatDMCpy.FileStructure import shallowRead, HDFTranslationAlternatives, HDFTranslation, HDFCounts
 
-import DMCpy
+import wombatDMCpy
 
 
 MPLKwargs = ['agg_filter','alpha','animated','antialiased','aa','clip_box','clip_on','clip_path','color','c','colorbar','contains','dash_capstyle','dash_joinstyle','dashes','drawstyle','figure','fillstyle','gid','label','linestyle or ls','linewidth or lw','marker','markeredgecolor or mec','markeredgewidth or mew','markerfacecolor or mfc','markerfacecoloralt or mfcalt','markersize or ms','markevery','path_effects','picker','pickradius','rasterized','sketch_params','snap','solid_capstyle','solid_joinstyle','transform','url','visible','xdata','ydata','zorder']
@@ -1023,7 +1023,7 @@ def merge(dataFilesList,saveFileName,directory=None, A3Tolerance=0.05, A4Toleran
         proc.attrs['NX_class']=b'NXprocess'
         author= proc.create_dataset('author',shape=(1,),dtype='S70',data=np.string_('DMCpy'))
         author.attrs['NX_class']=b'NX_CHAR'
-        author= proc.create_dataset('version',shape=(1,),dtype='S70',data=np.string_(DMCpy.__version__))
+        author= proc.create_dataset('version',shape=(1,),dtype='S70',data=np.string_(wombatDMCpy.__version__))
         author.attrs['NX_class']=b'NX_CHAR'
         
         date= proc.create_dataset('date',shape=(1,),dtype='S70',data=np.string_(datetime.datetime.now()))

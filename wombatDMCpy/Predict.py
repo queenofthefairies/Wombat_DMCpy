@@ -1,5 +1,5 @@
 import tkinter as tk
-from DMCpy import DataSet, TasUBlibDEG, DataFile, Sample
+from wombatDMCpy import DataSet, TasUBlibDEG, DataFile, Sample
 import numpy as np
 
 def predictiveTool():

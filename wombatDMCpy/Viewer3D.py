@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import matplotlib
 pltversion = float('.'.join(matplotlib.__version__.split('.')[:2]))
-from DMCpy import  _tools
+from wombatDMCpy import  _tools
 
 import functools
 

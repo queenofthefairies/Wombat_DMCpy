@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
 import numpy as np
-from DMCpy import _tools
+from wombatDMCpy import _tools
 from mpl_toolkits.axisartist import SubplotHost
 try:
     from mpl_toolkits.axisartist.grid_helper_curvelinear import \

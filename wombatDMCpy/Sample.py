@@ -1,8 +1,8 @@
 from cmath import acos
 import numpy as np
-from DMCpy import _tools
+from wombatDMCpy import _tools
 import h5py as hdf
-from DMCpy import TasUBlibDEG
+from wombatDMCpy import TasUBlibDEG
 import warnings
 
 def cosd(x):

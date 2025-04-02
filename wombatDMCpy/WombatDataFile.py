@@ -5,19 +5,19 @@ import numpy as np
 import pickle as pickle
 import matplotlib.pyplot as plt
 import pandas as pd
-import DMCpy
+import wombatDMCpy
 import os.path
-from DMCpy import InteractiveViewer
-from DMCpy.TasUBlibDEG import converterToA3A4Z
+from wombatDMCpy import InteractiveViewer
+from wombatDMCpy.TasUBlibDEG import converterToA3A4Z
 
 import warnings
 
 import copy
-from DMCpy._tools import KwargChecker, MPLKwargs, roundPower
-from DMCpy import Sample
-from DMCpy.WombatFileStructure import HDFCounts, HDFCountsBG, HDFTranslation, HDFTranslationAlternatives, HDFTranslationDefault, HDFTranslationFunctions
-from DMCpy.WombatFileStructure import HDFInstrumentTranslation, HDFInstrumentTranslationFunctions, extraAttributes, possibleAttributes 
-from DMCpy.WombatFileStructure import HDFTypes, HDFUnits, shallowRead
+from wombatDMCpy._tools import KwargChecker, MPLKwargs, roundPower
+from wombatDMCpy import Sample
+from wombatDMCpy.WombatFileStructure import HDFCounts, HDFCountsBG, HDFTranslation, HDFTranslationAlternatives, HDFTranslationDefault, HDFTranslationFunctions
+from wombatDMCpy.WombatFileStructure import HDFInstrumentTranslation, HDFInstrumentTranslationFunctions, extraAttributes, possibleAttributes 
+from wombatDMCpy.WombatFileStructure import HDFTypes, HDFUnits, shallowRead
 
 
 scanTypes = ['Old Data','Powder','A3']
@@ -73,7 +73,7 @@ def findCalibration(fileName):
     # Split name in 'dmcyyyynxxxxxx.hdf'
     year,fileNo = [int(x) for x in fileName[3:].replace('.hdf','').split('n')]
 
-    calibrationDict = DMCpy.calibrationDict
+    calibrationDict = wombatDMCpy.calibrationDict
 
     # Calibration files do not cover the wanted year
     if not year in calibrationDict.keys():

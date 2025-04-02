@@ -6,10 +6,10 @@ import pandas as pd
 import shutil
 import os, copy
 import json, os, time
-from DMCpy import WombatDataFile, _tools, Viewer3D, RLUAxes, TasUBlibDEG
-from DMCpy.WombatFileStructure import shallowRead, HDFCountsBG, HDFTranslation
+from wombatDMCpy import WombatDataFile, _tools, Viewer3D, RLUAxes, TasUBlibDEG
+from wombatDMCpy.WombatFileStructure import shallowRead, HDFCountsBG, HDFTranslation
 import warnings
-import DMCpy
+import wombatDMCpy
 from scipy.optimize import curve_fit
 
 class WombatDataSet(object):
@@ -2703,7 +2703,7 @@ class WombatDataSet(object):
             ax.d = pd.DataFrame(dataToPandas)
 
             with open(fileName,'w') as f:
-                f.write("# CSV generated from DMCpy {}. Shape of data is {}\n".format(DMCpy.__version__,Int.shape))
+                f.write("# CSV generated from wombatDMCpy {}. Shape of data is {}\n".format(wombatDMCpy.__version__,Int.shape))
 
             ax.d.to_csv(fileName,mode='a')
 
@@ -3599,7 +3599,7 @@ def DMCsort(filelist,sortKey):
 
 def sortExport(fileList,dataFolder=None,PSI=True,xye=True,outFolder=None,dTheta=0.125,twoThetaOffset=0,bins=None,outFile=None,applyCalibration=True,correctedTwoTheta=True,sampleName=True,temperature=False,magneticField=False,electricField=False,fileNumber=False):
               
-    localSettingsFile = os.path.join(os.environ['LNSG_HOME'],'DMCpySettings.json')
+    localSettingsFile = os.path.join(os.environ['LNSG_HOME'],'wombatDMCpySettings.json')
     if not os.path.isfile(localSettingsFile):
         print('Cannot find local settings file (',localSettingsFile,')')
         
@@ -3645,7 +3645,7 @@ def sortExportLong(fileListLong,dataFolder=None,PSI=True,xye=True,outFolder=None
 
 def listGenerator(start=None,end=None):
         
-    localSettingsFile = os.path.join(os.environ['LNSG_HOME'],'DMCpySettings.json')
+    localSettingsFile = os.path.join(os.environ['LNSG_HOME'],'wombatDMCpySettings.json')
     if not os.path.isfile(localSettingsFile):
         print('Cannot find local settings file (',localSettingsFile,')')
         
