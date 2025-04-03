@@ -1,15 +1,14 @@
 """ wombat DMCpy test script for data sets
 this script tests functionality of the DMCpy package, wombat edition,
 
-- Viewer3D reciprocal space view for datasets containing multiple HDF files
-(the idea being you can stitch together many HDF to cover all of reciprocal space)
+- AlignToRefs which calculates a UB matrix based on supplied Qx, Qy, Qz and corresponding h,k,l
 
-- 3Dalign which
-    1. calculates a UB matrix based on supplied Qx, Qy, Qz and corresponding h,k,l
-    2. lets you specify projection vectors in h,k,l (r.l.u.) for the 3D viewer 
+- 3Dalign which lets you specify projection vectors in h,k,l (r.l.u.) for the 3D viewer 
 
-- Viewer3D which (given the UB matrix and projection vectors) shows reciprocal 
-  space in r.l.u.
+- Viewer3D 
+    - this script demonstrates Viewer3D for datasets containing multiple HDF files
+      (the idea being you can stitch together many HDF to cover all of reciprocal space)
+    - shows reciprocal space in r.l.u. given the UB matrix and projection vectors
 
 Test data: Y2SiO5 dataset
 """
@@ -20,7 +19,6 @@ import os
 from wombatDMCpy import WombatDataFile, WombatDataSet, _tools
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 
 """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ get the data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
@@ -80,13 +78,6 @@ HKL2 = [0,0,2]
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
 ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
 
-# we can enforce new projection vectors by this command
-# with this choice of p1 and p2 we will get the h0l plane
-p1 = np.array([1,0,0])
-p2 = np.array([0,0,1])
-ds.setProjectionVectors(p1,p2,p3=None)
-plane_name = 'h0l' # name for the plane
-
 
 """~~~~~~~~~~~~~~~~~~ Reciprocal space viewer in r.l.u. ~~~~~~~~~~~~~~~~~~~~~"""
 # Note: for not-orthogonal unit cells, you will have to "add up" the x and y
@@ -94,6 +85,13 @@ plane_name = 'h0l' # name for the plane
 # or move your mouse over the plot in the interactive matplotlib window, and in
 # the bottom right corner, the "real" h, k, l values of where your cursor is
 # will be reported
+
+# we can enforce new projection vectors by this command
+# with this choice of p1 and p2 we will get the h0l plane
+p1 = np.array([1,0,0])
+p2 = np.array([0,0,1])
+ds.setProjectionVectors(p1,p2,p3=None)
+plane_name = 'h0l' # name for the plane
 
 # Run the reciprocal space viewer, Viewer3D
 Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = True)

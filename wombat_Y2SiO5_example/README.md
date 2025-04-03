@@ -2,7 +2,8 @@
 This is an example of wombatdmcpy     
 - interactive detective viewer `Detector_View_Y2SiO5.py`     
 - reciprocal space view (inverse Angstrom) using multiple HDF files `Reciprocal_Space_View_invAA_Y2SiO5.py`  
-- using the above, I indexed some peaks by hand and put them in `reciprocal_space_conversion_Y2SiO5.xlsx`        
+- using the above, I indexed some peaks by hand and put them in `reciprocal_space_conversion_Y2SiO5.xlsx`  
+- calculating a UB matrix and using it to calculate various angles associated with *hkl* `UB_Matrix_and_calc_hkl_angles_Y2SiO5.py` results saved to `Y2SiO5_reflections_angles.xlsx`           
 - reciprocal space view (r.l.u., UB matrix calculated, projection vectors of your choice) `Reciprocal_Space_View_3Dalign_Y2SiO5.py`      
 
 Long scans covering 60 degrees in Euler psi, we knew the scattering plane was approximately *h0l*

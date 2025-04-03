@@ -959,11 +959,13 @@ class SingleCrystalWombatDataFile(WombatDataFile):
         #self.countShape = (self.countShape[0]*self.countShape[1],128,1152) # DMC
         self.countShape = (self.countShape[0]*self.countShape[1],128,968) # Wombat standard resolution
 
-    def calcualteHKLToA3A4Z(self,H,K,L,print=True,A4Sign=-1):
+    def calculateHKLToA3A4Z(self,H,K,L,A4Sign=-1):#print=True,A4Sign=-1):
+        print('\n(h, k, l) =  ({0}, {1}, {2}) r.l.u.'.format(H,K,L))
         Qx,Qy,Qz = self.sample.calculateHKLToQxQyQz(H,K,L)
+        print('(Qx, Qy, Qz) = ({0:.4f}, {1:.4f}, {2:.4f}) AA^-1'.format(Qx, Qy, Qz))
         if print:
             A3, A4, z = converterToA3A4Z(Qx,Qy,Qz,Ki=self.Ki,Kf=self.Ki,A4Sign=A4Sign,radius=self.radius)
-            print(f'Calculated angles for ({H},{K},{L}): \nA3: {np.round(A3,3)} \nA4: {np.round(A4,3)} \nz: {np.round(z,5)}\n')
+            print(f'Calculated angles for ({H},{K},{L}): \nA3: {np.round(A3,3)} deg \n two theta: {np.round(A4,3)} deg \nz: {np.round(z,5)} metres\n')
             print('Disclaimer: You might want to use a peak 180 or 360 deg away.\n')
             if A3 < -180:
                 print(f'Alternative A3: {np.round(A3+180,3)} or {np.round(A3+360,3)}')
@@ -972,9 +974,10 @@ class SingleCrystalWombatDataFile(WombatDataFile):
             if 0 < A3 < 180:
                 print(f'Alternative A3: {np.round(A3+180,3)} or {np.round(A3-180,3)}')
         else:
-            return converterToA3A4Z(Qx,Qy,Qz,Ki=self.Ki,Kf=self.Ki,A4Sign=A4Sign,radius=self.radius)
+            pass
 
-    
+        return converterToA3A4Z(Qx,Qy,Qz,Ki=self.Ki,Kf=self.Ki,A4Sign=A4Sign,radius=self.radius)
+        
 
 class PowderWombatDataFile(WombatDataFile):
     def __init__(self,fileType,*args,**kwargs):

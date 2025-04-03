@@ -626,6 +626,8 @@ class WombatDataSet(object):
         return Viewer3D.Viewer3D(Data,bins,axis=axis, ax=axes, grid=grid, log=log, outputFunction=outputFunction, cmap=cmap)
     
     def binData3D(self,dqx,dqy,dqz,rlu=True,raw=False,smart=False,steps=10):
+        print()
+        print('~~~~~~~ Binning data in 3D reciprocal space ~~~~~~~')
         maximas = []
         minimas = []
         for df in self:
@@ -1459,7 +1461,7 @@ class WombatDataSet(object):
             - HKL2 (array): Position of peak 2 in RLU
 
         """
-        
+        print('\n~~~~~~~ UB matrix shenanigans ~~~~~~~')
         E = np.power(self[0].Ki/TasUBlibDEG.factorsqrtEK,2.0)
         
         # Find rotation that brings q1 and q2 into the scattering plane (qz=0)
@@ -1929,8 +1931,8 @@ class WombatDataSet(object):
             fg.hasBackground = True
             fg.backgroundType = 'singleCrystal'
                   
-    def calcualteHKLToA3A4Z(self,H,K,L,Print=True,A4Sign=-1):
-        return self[0].calcualteHKLToA3A4Z(H,K,L,Print=Print,A4Sign=A4Sign)
+    def calculateHKLToA3A4Z(self,H,K,L,Print=True,A4Sign=-1):
+        return self[0].calculateHKLToA3A4Z(H,K,L)#,Print=Print,A4Sign=A4Sign)
 
     def export_PSI_format(self,dTheta=0.125,twoThetaOffset=0,bins=None,hourNormalization=False,outFile=None,addTitle=None,outFolder=None,useMask=False,maxAngle=5,applyCalibration=True,correctedTwoTheta=True,sampleName=True,sampleTitle=True,temperature=False,magneticField=False,electricField=False,fileNumber=False,waveLength=False):
 
