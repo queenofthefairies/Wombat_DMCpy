@@ -20,7 +20,7 @@ sample_name = 'Y2SiO5'
 # directory where the data are
 data_dir = os.getcwd() + '/Y2SiO5_data/'
 # One file at a time please!!!
-file_name = 'WBT0102677.nx.hdf'
+file_name = 'WBT0102676.nx.hdf'
 # Rotation axis in this case was Euler Phi
 sample_rotation_axis = 'ephi'
 

@@ -5,9 +5,9 @@ import numpy as np
 
 class InteractiveViewer(object):
     """Interactive viewer for 2D detector and 1D scan variable"""
-    def __init__(self,data,twoTheta,pixelPosition,scanValues=None,scanParameter=None,
+    def __init__(self, data, twoTheta, pixelPosition, sampleName, hdfFileName, scanValues=None,scanParameter=None,
                  scanValueFormat=None,scanValueUnit=None,colorbar=False,outputFunction=print,
-                 mainTitle='Single Step',vmin=None,vmax=None, positive2Theta=True,
+                 mainTitle='Single step detector view.',vmin=None,vmax=None, positive2Theta=True,
                  dataLabel = 'Intensity (counts)',axis_1_label=r'Sum over $z$',axis_2_label=r'Sum over 2$\theta$',
                  xlabel=r'2$\theta$ [$^\circ$]',ylabel=r'$z$ [m]',sampleRotationAxis=None,cmap='viridis'):
         """
@@ -72,7 +72,11 @@ class InteractiveViewer(object):
             
         self.cmap = cmap
         self.colorbar = colorbar
-        self.mainTitle = mainTitle
+        #print('hdfFileName')
+        ##print(hdfFileName)
+        #print(type(hdfFileName))
+        #print(self.sampleName)
+        self.mainTitle = hdfFileName + ', ' + sampleName + '. ' + mainTitle
         self.sliderTitle = sampleRotationAxis
         self.xlabel = xlabel
         self.ylabel = ylabel

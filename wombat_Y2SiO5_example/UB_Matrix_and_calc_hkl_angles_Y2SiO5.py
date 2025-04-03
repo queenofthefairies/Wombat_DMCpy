@@ -112,7 +112,13 @@ my_reflections_list = [[1,1,0],
                        [2,0,2],
                        [4,0,2],
                        [4,0,6],
-                       [2,0,-4]]
+                       [2,0,-4],
+                       [6,0,-4],
+                       [2,0,-6],
+                       [0,0,6],
+                       [4,0,4],
+                       [0,0,-4],
+                       [10,0,-4]]
 
 # loop to calculate angles for each HKL
 # if angles are all numbers: add to a list which becomes the inital dataframe
@@ -128,9 +134,15 @@ for reflection in my_reflections_list:
         my_reflections_A3A4Z_list.append(reflection_A3A4Z)
 
 my_reflections_dataframe = pd.DataFrame(np.array(my_reflections_A3A4Z_list),
-                                        columns = ['h', 'k', 'l','A3 (deg)','two theta (deg)', 'z (m)'])
+                                        columns = ['h', 'k', 'l','A3 (deg)','A4 (deg)', 'z (m)'])
 for nan_reflection in nan_reflections_list:
     my_reflections_dataframe.loc[len(my_reflections_dataframe)] = nan_reflection
+
+# for whatever mystery reason, 2theta [Wombat] = -A4 [DMC] 
+my_reflections_dataframe['two theta (deg)'] = -my_reflections_dataframe['A4 (deg)']
+
+# sort dataframe by two theta
+my_reflections_dataframe = my_reflections_dataframe.sort_values(by=['two theta (deg)'])
 
 # view the dataframe of reflections and calculated angles 
 print()
@@ -139,6 +151,6 @@ print(my_reflections_dataframe)
 # save dataframe to spreadsheet
 spreadsheet_filename = '{0}_reflections_angles.xlsx'.format(sample_name)
 my_reflections_dataframe.to_excel(spreadsheet_filename, float_format = "%.5f")
-print('\nsaved hkl and angles to {0}'.format(spreadsheet_filename))
+print('\nsaved hkl and angles to {0} \n'.format(spreadsheet_filename))
 
 

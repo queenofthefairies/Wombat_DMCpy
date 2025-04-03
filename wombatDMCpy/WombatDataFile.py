@@ -244,6 +244,8 @@ class WombatDataFile(object):
         print()
         print('~~~~~~~ DMCpy x Wombat: loading single crystal data file {0} ~~~~~~~'.format(file))
         self.fileType = 'WombatDataFile'
+        self.hdfFileName = file[-17:-7] 
+        print('HDF file name = {0}'.format(self.hdfFileName))
         self._twoThetaOffset = 0.0
         self._wavelength = wavelength if wavelength is not None else 2.41
         self._Ki = 2*np.pi/wavelength
@@ -299,6 +301,7 @@ class WombatDataFile(object):
             for parameter in HDFTranslation.keys():
                 if parameter in ['unitCell','sample','unitCell','wavelength','verticalPosition']:
                     continue
+
                 if parameter in HDFTranslationAlternatives:
                     for entry in HDFTranslationAlternatives[parameter]:
                         value = np.array(f.get(entry))
@@ -325,6 +328,11 @@ class WombatDataFile(object):
                         value = getattr(value,func)(*args)
                 
                 setattr(self,parameter,value)
+                if parameter == 'sampleName':
+                    print('Sample name = {0} \n'.format(self.sampleName))
+                else:
+                    pass
+                
             
             if self.sampleRotationAxis == 'ephi':
                 self.sample.rotation_angle = 'euler_phi'
@@ -473,7 +481,12 @@ class WombatDataFile(object):
     def verticalPosition(self,twoTheta):
         repeats = self.countShape[1]
         # for Wombat, detector height is 20cm so +- 0.1 m
-        self._verticalPosition = np.linspace(-0.1,0.1,128,endpoint=True)
+        self._verticalPosition = np.linspace(0.1,-0.1,128,endpoint=True)
+        # for wombat:
+        # originally had the linspace starting at -0.1 and finishing at 0.1
+        # as per below line of code
+        # but this meant the detector was flipped vertically!!!!!!
+        #self._verticalPosition = np.linspace(-0.1,0.1,128,endpoint=True)
 
     @property
     def wavelength(self):
@@ -920,7 +933,7 @@ class WombatDataFile(object):
     def InteractiveViewer(self,**kwargs):
         if not self.fileType.lower() in ['singlecrystal','powder'] :
             raise AttributeError('Interactive Viewer can only be used for the new data files. Either for powder or for a single crystal A3 scan')
-        return InteractiveViewer.InteractiveViewer(self.intensity,self.twoTheta,self.pixelPosition,self.A3,scanParameter = 'A3',scanValueUnit=r'$^\circ$',colorbar=True,**kwargs)
+        return InteractiveViewer.InteractiveViewer(self.intensity,self.twoTheta,self.pixelPosition, self.sampleName, self.hdfFileName, scanValues = self.A3, scanParameter = 'A3',scanValueUnit=r'$^\circ$',colorbar=True,**kwargs)
 
     @property
     def correctedTwoTheta(self):
@@ -959,7 +972,7 @@ class SingleCrystalWombatDataFile(WombatDataFile):
         #self.countShape = (self.countShape[0]*self.countShape[1],128,1152) # DMC
         self.countShape = (self.countShape[0]*self.countShape[1],128,968) # Wombat standard resolution
 
-    def calculateHKLToA3A4Z(self,H,K,L,A4Sign=-1):#print=True,A4Sign=-1):
+    def calculateHKLToA3A4Z(self,H,K,L,A4Sign=-1): # Default sign is -1 for DMC. Not sure if this is correct for Wombat
         print('\n(h, k, l) =  ({0}, {1}, {2}) r.l.u.'.format(H,K,L))
         Qx,Qy,Qz = self.sample.calculateHKLToQxQyQz(H,K,L)
         print('(Qx, Qy, Qz) = ({0:.4f}, {1:.4f}, {2:.4f}) AA^-1'.format(Qx, Qy, Qz))
