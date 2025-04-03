@@ -149,23 +149,20 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
 
 
     if sampleRotationAxis == 'ephi':
-        #print('sample rotation axis is euler phi 0')
-        #self.sample.rotation_angle = 'euler_phi'
         A3 = shallowRead([fileLocation],['euler_phi'])[0]['euler_phi']
+    
+    elif sampleRotationAxis == 'echi':
+        A3 = shallowRead([fileLocation],['euler_chi'])[0]['euler_chi']
+
     elif sampleRotationAxis == 'eom':
-        #print('sample rotation axis is euler omega 0')
-        #self.sample.rotation_angle = 'euler_omega'
         A3 = shallowRead([fileLocation],['euler_omega'])[0]['euler_omega']
+
     elif sampleRotationAxis == 'som':
-        #print('sample rotation axis is sample stage omega 0')
-        #self.sample.rotation_angle = 'sample_stage_omega'
         A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
+
     else:
-        #print('sample rotation axis not specified, assuming it is sample stage omega 0')
-        #self.sample.rotation_angle = 'sample_stage_omega'
+        # sample rotation axis not specified, assuming it is sample stage omega
         A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
-    #A3 = shallowRead([fileLocation],['A3'])[0]['A3']
-    #print('A3 = {0}'.format(A3))
 
     # se_r is sample environment rotation axes
     #se_r = shallowRead([fileLocation],['se_r'])[0]['se_r']
@@ -316,7 +313,12 @@ class WombatDataFile(object):
                     TrF= HDFInstrumentTranslationFunctions
 
                 if value.shape == () or value is None:
-                    value = HDFTranslationDefault[parameter]
+                    try:
+                        value = HDFTranslationDefault[parameter]
+                    except KeyError:
+                        # data collected without the Eulerian cradle won't have 
+                        # Euler omega, Euler phi, Euler chi
+                        print('no {0} in this HDF'.format(parameter))
 
                 else:
                     for func,args in TrF[parameter]:
@@ -326,17 +328,20 @@ class WombatDataFile(object):
             
             if self.sampleRotationAxis == 'ephi':
                 self.sample.rotation_angle = 'euler_phi'
-                value = np.array(f.get(HDFTranslation['euler_phi']))
+
+            elif self.sampleRotationAxis == 'echi':
+                self.sample.rotation_angle = 'euler_chi'
+
             elif self.sampleRotationAxis == 'eom':
                 self.sample.rotation_angle = 'euler_omega'
-                value = np.array(f.get(HDFTranslation['euler_omega']))
+
             elif self.sampleRotationAxis == 'som':
-                value = np.array(f.get(HDFTranslation['sample_stage_omega']))
                 self.sample.rotation_angle = 'sample_stage_omega'
+                
             else:
-                value = np.array(f.get(HDFTranslation['sample_stage_omega']))
                 self.sample.rotation_angle = 'sample_stage_omega'
 
+            value = np.array(f.get(HDFTranslation[self.sample.rotation_angle]))
             setattr(self,'A3',value)
 
                 
@@ -412,9 +417,10 @@ class WombatDataFile(object):
         
     @A3.setter
     def A3(self,A3):
-        #print('in A3 setter')
         if self.sampleRotationAxis == 'ephi':
             self.sample.rotation_angle = 'euler_phi'
+        elif self.sampleRotationAxis == 'echi':
+            self.sample.rotation_angle = 'euler_chi'
         elif self.sampleRotationAxis == 'eom':
             self.sample.rotation_angle = 'euler_omega'
         elif self.sampleRotationAxis == 'som':
@@ -424,10 +430,8 @@ class WombatDataFile(object):
         if A3 is None:
             self.sample.rotation_angle = np.array([0.0]*len(self.monitor))
         else:
-            #print('here in A3 setter')
             self.sample.rotation_angle = A3
         if hasattr(self,'ki'):
-            #print('in A3 setter Wom Dat File')
             self.calculateQ()
     
 

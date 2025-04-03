@@ -45,6 +45,7 @@ HDFTranslation = {'sample':'/entry1/sample',
                   #'address':None,#'entry1/user/address',
                   #'affiliation':None,#'entry1/user/affiliation',
                   'euler_omega':'entry1/sample/euler_omega', # previously known as A3
+                  'euler_chi':'entry1/sample/euler_chi',
                   'euler_phi':'entry1/sample/euler_phi',
                   'sample_stage_omega':'entry1/sample/rotate',
                   #'se_r':None,#'entry1/sample/se_r', # this is sample environment rotation axes
