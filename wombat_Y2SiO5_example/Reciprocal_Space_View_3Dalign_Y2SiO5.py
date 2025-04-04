@@ -37,9 +37,9 @@ sample_rotation_axis = 'ephi'
 unit_cell = np.array([14.406, 6.728, 10.421, 90, 122.194, 90]) 
 
 # View 3D axis options, select one
-axis_option = 2 # view scattering plane i.e. Qx-Qy plane 
-#axis_option = 1 # view out-of-plane Qy-Qz
-#axis_option = 0 # view other out-of-plane Qz-Qx
+axis_option = 2 # view scattering plane defined by projection vectors
+#axis_option = 1 # view out-of-plane (orthogonal plane #1 to the plane defined by projection vectors)
+#axis_option = 0 # view other out-of-plane (orthogonal plane #2 to the plane defined by projection vectors)
 
 # Load the data
 data_file_list = []
@@ -97,17 +97,17 @@ plane_name = 'h0l' # name for the plane
 Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = True)
 
 # Set the color bar limits to 0 and 0.001
-Viewer.set_clim(0,0.01)
+Viewer.set_clim(0,0.001)
 
 # set axes to be equal
 Viewer.ax.axis('equal')
 
 # this is just to make naming figures when you save them easier
 # remember you can also save figs in the interactive matplotlib window
-prefix_for_figures = '{0}_{1}-{2}_{3}_scan'.format(sample_name,
-                                                   file_name_list[0][:-7],
-                                                   file_name_list[-1][:-7],
-                                                   sample_rotation_axis)
+fileRange_str = ds.fileRange
+prefix_for_figures = '{0}_{1}_{2}_scan'.format(sample_name,
+                                               fileRange_str,
+                                               sample_rotation_axis)
 
 ########## View plane defined by your projection vectors           
 # Find the number of steps and set viewer to middle value

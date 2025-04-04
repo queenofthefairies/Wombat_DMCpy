@@ -20,7 +20,7 @@ sample_name = 'Y2SiO5'
 # directory where the data are
 data_dir = os.getcwd() + '/Y2SiO5_data/'
 # One file at a time please!!!
-file_name = 'WBT0102676.nx.hdf'
+file_name = 'WBT0102678.nx.hdf'
 # Rotation axis in this case was Euler Phi
 sample_rotation_axis = 'ephi'
 
@@ -39,6 +39,8 @@ IA1 = df.InteractiveViewer(sampleRotationAxis = sample_rotation_axis)
 IA1.set_clim(0,20)
 # set colour map limits for z integrated data
 IA1.set_clim_zIntegrated(0,1000)
+# set colour map limits for 2theta integrated data
+IA1.set_clim_thetaIntegrated(0,20000)
 # save the figure. You can also save from the matplotlib interactive window.
 IA1.fig.savefig('{0}_{1}_{2}_scan_detector_view.png'.format(sample_name,file_name[:-7],
                                                             sample_rotation_axis),

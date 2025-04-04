@@ -16,7 +16,7 @@ pythonSubVersion = sys.version_info[1]
 
 class Viewer3D(object):  
     @_tools.KwargChecker(include=[_tools.MPLKwargs])
-    def __init__(self,Data,bins,axis=2, ax=None,log=False, grid = False, adjustable=True, outputFunction=print, 
+    def __init__(self,Data,bins,fileRange,sampleName,axis=2, ax=None,log=False, grid = False, adjustable=True, outputFunction=print, 
                  cmap='viridis', **kwargs):#pragma: no cover
         """3 dimensional viewing object generating interactive Matplotlib figure. 
         Keeps track of all the different plotting functions and variables in order to allow the user to change between different slicing modes and to scroll through the data in an interactive way.
@@ -47,7 +47,7 @@ class Viewer3D(object):
         """
         print()
         print('~~~~~~~ DMCpy x Wombat: single crystal raw data 3D view ~~~~~~~')
-        
+        self.mainTitle = fileRange + ', ' + sampleName + '. Reciprocal space view.'
         if len(Data)==4: # If data is provided as I, norm, mon, normcount
             with warnings.catch_warnings() as w:
                 self.Data = np.divide(Data[0]*Data[3],Data[1]*Data[2])
@@ -82,9 +82,10 @@ class Viewer3D(object):
         if ax is None:
             self.figure = plt.figure()
             self.ax = plt.subplot(gs[0])#self.figure.add_subplot(111)
-            self.xlabel = r'Qx [$A^{-1}$]'
-            self.ylabel = r'Qy [$A^{-1}$]'
-            self.zlabel = r'Qz [$A^{-1}$]'
+            self.ax.set_title(self.mainTitle)
+            self.xlabel = r'Qx [$\AA^{-1}$]'
+            self.ylabel = r'Qy [$\AA^{-1}$]'
+            self.zlabel = r'Qz [$\AA^{-1}$]'
             self.rlu = False
             self._axes = [self.ax]
         else:
@@ -257,20 +258,25 @@ class Viewer3D(object):
             if self.rlu:
                 self.figure.delaxes(self.ax)
                 self.ax = self.figure.add_axes(self._axes[axis])
+                #self.ax.set_title(self.mainTitle)
             else:
                 self.ax.set_xlabel(self.xlabel)
                 self.ax.set_ylabel(self.ylabel)
                 self.ax.axisProjection = 2
+                #self.ax.set_title(self.mainTitle)
+            self.ax.set_title(self.mainTitle)
             axes = (0,1,2)
             label = self.zlabel#self.ax.get_ylabel
         elif axis==1:  # pragma: no cover
             if self.rlu:
                 self.figure.delaxes(self.ax)
                 self.ax = self.figure.add_axes(self._axes[axis])
+
             else:
                 self.ax.set_xlabel(self.xlabel)
                 self.ax.set_ylabel(self.zlabel)
                 self.ax.axisProjection = 1
+            self.ax.set_title(self.mainTitle)
             axes = (0,2,1)
             label =  self.ylabel#self.ax.get_ylabel
         elif axis==0:  # pragma: no cover
@@ -281,6 +287,7 @@ class Viewer3D(object):
                 self.ax.set_xlabel(self.ylabel)
                 self.ax.set_ylabel(self.zlabel)
                 self.ax.axisProjection = 0
+            self.ax.set_title(self.mainTitle)
             axes = (1,2,0)
             label =  self.xlabel#self.ax.get_xlabel()
             

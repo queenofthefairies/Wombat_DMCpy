@@ -72,10 +72,7 @@ class InteractiveViewer(object):
             
         self.cmap = cmap
         self.colorbar = colorbar
-        #print('hdfFileName')
-        ##print(hdfFileName)
-        #print(type(hdfFileName))
-        #print(self.sampleName)
+
         self.mainTitle = hdfFileName + ', ' + sampleName + '. ' + mainTitle
         self.sliderTitle = sampleRotationAxis
         self.xlabel = xlabel
@@ -117,7 +114,7 @@ class InteractiveViewer(object):
         self.scanStepExtended = np.arange(-0.5,len(self.data)-1+0.6,1.0)
              
         # Create figure with axes. Layout is 3 x 6
-        self.heights = [8,1,6] # make slider thin
+        self.heights = [8,1,8] # make slider thin
         self.widths = [1,3,3,3,3,1] # Change widths
         self.fig = plt.figure(constrained_layout=False,figsize=(13,9))
         
@@ -171,15 +168,19 @@ class InteractiveViewer(object):
         # Plotting limits across all steps
         
         # plot theta and alpha integrated intensities
-
         self.ax_alphaIntegrated._pcolormesh = self.ax_alphaIntegrated.pcolormesh(self.twoThetaExtended,self.scanStepExtended,self.IAlphaIntegrated,cmap=self.cmap)#,vmin=vmin,vmax=vmax)
         self.ax_thetaIntegrated._pcolormesh = self.ax_thetaIntegrated.pcolormesh(self.pixelPositionExtended,self.scanStepExtended,self.IThetaIntegrated,cmap=self.cmap)#,vmin=vmin,vmax=vmax)
         
-        #self.ax_alphaIntegrated.axis('auto')
-        #self.ax_thetaIntegrated.axis('auto')
-        #self.ax_thetaIntegrated.set_yticks([])
-        #self.ax_thetaIntegrated.sharey(self.ax_alphaIntegrated)
-        
+        # add colorbars if so desired
+        if self.colorbar:
+            self.fig.colorbar(self.ax_thetaIntegrated._pcolormesh, 
+                              ax=self.ax_thetaIntegrated, pad=0.18, shrink=0.6,
+                              location = 'bottom', 
+                              label = 'Integrated intensity (counts)')
+            self.fig.colorbar(self.ax_alphaIntegrated._pcolormesh, 
+                              ax=self.ax_alphaIntegrated, pad=0.18, shrink=0.6,
+                              location = 'bottom', 
+                              label = 'Integrated intensity (counts)')
         
         if not scanValues is None: # if scan values are provided
             # Linear interpolation between scan value and scan index + vice versa
@@ -203,12 +204,10 @@ class InteractiveViewer(object):
                 ytick_3 = np.round(0.5*(ytick_2 + ytick_4),1)
                 ytick_1 = np.round(0.5*(ytick_0 + ytick_2),1)
                 secax_yticks_list = [ytick_0, ytick_1, ytick_2, ytick_3, ytick_4]
-            #print(self.scanValuesExtended[0])
 
             self.secax_theta.set_yticks(secax_yticks_list)
             self.secax_alpha.set_yticks(secax_yticks_list)
-            #print('self.toScanValue(x)')
-            #print(self.toScanValue(x))
+
             ylabel = self.sliderTitle
             if not scanValueUnit is None:
                 ylabel = ylabel+' ['+scanValueUnit+']'

@@ -36,13 +36,12 @@ class WombatDataSet(object):
 
     def _getData(self,verbose=False):
         self.type = self[0].fileType
-        return
 
-        #data file lengths
+        # data file lengths
         lengths = np.asarray([len(df) for df in self])
 
         # Collect parameters listed below across data files into self
-        for parameter in ['counts','monitor','twoTheta','correctedTwoTheta','fileName','pixelPosition','wavelength','mask','normalization','normalizationFile','time','temperature']:
+        for parameter in ['counts','monitor','twoTheta','correctedTwoTheta','fileName','pixelPosition','wavelength','mask','normalization','normalizationFile','time']:
             if not np.all(lengths==lengths[0]):
                 setattr(self,parameter,np.array([getattr(d,parameter) for d in self],dtype=object))
                 if verbose: print('file length is not the same for all files => dtype=object')
@@ -55,14 +54,28 @@ class WombatDataSet(object):
                     dtype = float
 
                 setattr(self,parameter,np.array([getattr(d,parameter) for d in self],dtype=dtype))
-                if verbose: print('file length is the same for all files => dtype is induvidual')
+                if verbose: print('file length is the same for all files => dtype is individual')
 
-        
         types = [df.fileType for df in self]
         if len(types)>1:
             if not np.all([types[0] == t for t in types[1:]]):
                 raise AttributeError('Provided data files have different types!\n'+'\n'.join([df.fileName+': '+df.scanType for df in self]))
         self.type = types[0]
+
+        # get representative sample name for dataset 
+        sampleNames = [df.sampleName for df in self]
+        self.sampleName = sampleNames[0]
+
+        # get representative sample name for dataset 
+        hdfFileNames = [df.hdfFileName for df in self]
+        fileRange_str = ''
+        if len(hdfFileNames) == 1:
+            fileRange_str = hdfFileNames[0]
+        else:
+            fileRange_str = hdfFileNames[0] + '-' + hdfFileNames[-1]
+        self.fileRange = fileRange_str
+
+        return
 
 
     def __len__(self):
@@ -622,8 +635,8 @@ class WombatDataSet(object):
         Data,bins,_ = self.binData3D(dqx,dqy,dqz,rlu=rlu,raw=raw,smart=smart,steps=steps)
 
         Data*=multiplicationFactor
-
-        return Viewer3D.Viewer3D(Data,bins,axis=axis, ax=axes, grid=grid, log=log, outputFunction=outputFunction, cmap=cmap)
+        
+        return Viewer3D.Viewer3D(Data,bins,self.fileRange,self.sampleName,axis=axis, ax=axes, grid=grid, log=log, outputFunction=outputFunction, cmap=cmap)
     
     def binData3D(self,dqx,dqy,dqz,rlu=True,raw=False,smart=False,steps=10):
         print()

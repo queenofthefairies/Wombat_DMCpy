@@ -53,16 +53,18 @@ ds = WombatDataSet.WombatDataSet(data_file_list)
 Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = False)
 
 # Set the color bar limits to 0 and 0.001
-Viewer.set_clim(0,0.01)
+Viewer.set_clim(0,0.001)
 
 # set axes to be equal
 Viewer.ax.axis('equal')
 
+fileRange_str = ds.fileRange
+
 # this is just to make naming figures when you save them easier
-prefix_for_figures = '{0}_{1}-{2}_{3}_scan'.format(sample_name,
-                                                   file_name_list[0][:-7],
-                                                   file_name_list[-1][:-7],
-                                                   sample_rotation_axis)
+# remember you can also save figs in the interactive matplotlib window
+prefix_for_figures = '{0}_{1}_{2}_scan'.format(sample_name,
+                                               fileRange_str,
+                                               sample_rotation_axis)
 
 # Find the number of steps and set viewer to middle value
 # This can also be done interactively in the viewer by pressing up or down,
