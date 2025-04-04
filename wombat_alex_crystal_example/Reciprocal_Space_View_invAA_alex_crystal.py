@@ -46,8 +46,8 @@ ds = WombatDataSet.WombatDataSet([df])
 # rlu option is false as we are plotting Qx, Qy, Qz in AA^-1
 Viewer = ds.Viewer3D(0.02, 0.02, 0.02, rlu = False)
 
-# Set the color bar limits to 0 and 0.001
-Viewer.set_clim(0,0.0001)
+# Set the color bar limits to 0 and 0.000025
+Viewer.set_clim(0,0.000025)
 
 # set axes to be equal
 Viewer.ax.axis('equal')

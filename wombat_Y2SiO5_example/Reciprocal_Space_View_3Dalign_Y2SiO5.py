@@ -70,10 +70,10 @@ ds = WombatDataSet.WombatDataSet(data_file_list)
 # 4. then come back here with your Qx, Qy, Qz and corresponding hypothesised h,k,l
 
 # Define Q coordinates and HKL for the coordinates.
-q1 = [-0.061,2.135,0.00]
-q2 = [-0.613,1.277,0.035]
+q1 = [-0.064,2.145,-0.005]
+q2 = [-1.705,-0.453,-0.0849]
 HKL1 = [2,0,2]
-HKL2 = [0,0,2]
+HKL2 = [4,0,-2]
 
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
 ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
@@ -96,8 +96,8 @@ plane_name = 'h0l' # name for the plane
 # Run the reciprocal space viewer, Viewer3D
 Viewer = ds.Viewer3D(0.01, 0.01, 0.01, rlu = True)
 
-# Set the color bar limits to 0 and 0.001
-Viewer.set_clim(0,0.001)
+# Set the color bar limits to 0 and 0.01
+Viewer.set_clim(0,0.01)
 
 # set axes to be equal
 Viewer.ax.axis('equal')
