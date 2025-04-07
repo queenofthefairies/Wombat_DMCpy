@@ -29,8 +29,8 @@ sample_rotation_axis = 'ephi'
 
 # View 3D axis options, select one
 axis_option = 2 # view scattering plane i.e. Qx-Qy plane 
-#axis_option = 1 # view out-of-plane Qy-Qz
-#axis_option = 0 # view other out-of-plane Qz-Qx
+axis_option = 1 # view out-of-plane Qx-Qz
+#axis_option = 0 # view other out-of-plane Qy-Qz
 
 # Load the data
 data_file_list = []

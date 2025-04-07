@@ -70,10 +70,10 @@ ds = WombatDataSet.WombatDataSet(data_file_list)
 # 4. then come back here with your Qx, Qy, Qz and corresponding hypothesised h,k,l
 
 # Define Q coordinates and HKL for the coordinates.
-q1 = [-0.064,2.145,-0.005]
-q2 = [-1.705,-0.453,-0.0849]
-HKL1 = [2,0,2]
-HKL2 = [4,0,-2]
+q1 = [-1.714,-0.4618,-0.069]
+q2 = [-3.971,-1.7614,-0.144]
+HKL1 = [4,0,-2]
+HKL2 = [4,0,4]
 
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
 ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
