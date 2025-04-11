@@ -126,8 +126,8 @@ def getInstrument(file):
     return file.get(location)
 
 
-@KwargChecker(include=['radius','twoTheta','verticalPosition','twoThetaPosition','forcePowder','wavelength','sampleOffsetZ']+list(HDFTranslation.keys()))
-def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,sampleRotationAxis=None,**kwargs):
+@KwargChecker(include=['radius','twoTheta','verticalPosition','twoThetaPosition','forcePowder','wavelength','sampleOffsetZ']+list(HDFTranslation.keys())) #'wavelength'
+def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,wavelength=None,sampleRotationAxis=None,**kwargs):
     """Load DMC data file, either powder or single crystal data.
     
     
@@ -139,7 +139,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
         if fileLocation.fileType.lower() == 'powder':
             return PowderWombatDataFile(fileLocation,unitCell=unitCell)
         elif fileLocation.fileType.lower() == 'singlecrystal':
-            return SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell)
+            return SingleCrystalWombatDataFile(fileLocation,wavelength=wavelength,unitCell=unitCell)
         else:
             return WombatDataFile(fileLocation,unitCell=unitCell)
     elif not os.path.exists(fileLocation): # load file from disk
@@ -181,8 +181,8 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     if fileType.lower() == 'powder' or T == 'powder':
         df = PowderWombatDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
     elif fileType.lower() == 'singlecrystal' or T == 'singlecrystal':
-        #print('loading single xtal')
-        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell, sampleRotationAxis = sampleRotationAxis)
+        print('loading single xtal')
+        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell, wavelength=wavelength, sampleRotationAxis = sampleRotationAxis)
     else:
         df = WombatDataFile(fileLocation,unitCell=unitCell)
 
@@ -208,14 +208,18 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     if 'twoThetaPosition' in kwargs:
         if not 'twoTheta' in kwargs:
             #df.twoTheta = np.linspace(0,-132,9*128)+df.twoThetaPosition # for DMC
-            df.twoTheta = np.linspace(0,120,8*121)+df.twoThetaPosition # for Wombat
+            df.twoTheta = np.linspace(0,120,8*121)+df.twoThetaPosition # for Wombat standard resolution
         else:
             df.twoTheta = kwargs['twoTheta']
     elif 'twoTheta' in kwargs:
         df.twoTheta = kwargs['twoTheta']
     
-    if 'wavelength' not in kwargs:
-        df.wavelength = 2.41 
+
+    if not 'wavelength' in kwargs:
+        df.wavelength = wavelength
+        if wavelength == None:
+            df.wavelength = 2.41 # default wombat wavelength 
+
     elif 'wavelength' in kwargs:
         df.wavelength = kwargs['wavelength']
 
@@ -240,7 +244,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
 
 class WombatDataFile(object):
     @KwargChecker()
-    def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=2.41, sampleRotationAxis=None):
+    def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=None, sampleRotationAxis=None): #Wavelength = 2.41
         print()
         print('~~~~~~~ DMCpy x Wombat: loading single crystal data file {0} ~~~~~~~'.format(file))
         self.fileType = 'WombatDataFile'
@@ -248,7 +252,9 @@ class WombatDataFile(object):
         print('HDF file name = {0}'.format(self.hdfFileName))
         self._twoThetaOffset = 0.0
         self._wavelength = wavelength if wavelength is not None else 2.41
-        self._Ki = 2*np.pi/wavelength
+        self.wavelength = wavelength if wavelength is not None else 2.41
+
+        self._Ki = 2*np.pi/self._wavelength
         self.monochromatorDistance = 2.82 # <----------------- CHECK
         self._counts = None
         self._background = None
@@ -270,7 +276,7 @@ class WombatDataFile(object):
                 raise FileNotFoundError('Provided file path "{}" not found.'.format(file))
 
     @KwargChecker()
-    def loadFile(self,filePath,unitCell=None,wavelength=2.41, forcePowder=False):
+    def loadFile(self,filePath,unitCell=None, forcePowder=False): # 2.41 # wavelength=None,
 
         if not os.path.exists(filePath):
             raise FileNotFoundError('Provided file path "{}" not found.'.format(filePath))
@@ -278,8 +284,7 @@ class WombatDataFile(object):
         self.folder, self.fileName = os.path.split(filePath)
 
         # setup standard parameters
-        self._wavelength = 2.41
-
+        self._wavelength = self.wavelength # 2.41
 
         # Open file in reading mode
         with hdf.File(filePath,mode='r') as f:
@@ -495,7 +500,7 @@ class WombatDataFile(object):
     @wavelength.getter
     def wavelength(self):
         if not hasattr(self,'_wavelength'):
-            self._wavelength = 2.41
+            self._wavelength = 2.41 # default wombat wavelength
         return self._wavelength
 
     @wavelength.setter

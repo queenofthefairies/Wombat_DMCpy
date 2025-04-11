@@ -77,7 +77,7 @@ HDFTranslationDefault = {'twoThetaPosition':np.array([0.0]),
                          'affiliation': 'Unknown Affiliation',
                          'scanCommand': 'Unknown scanCommand',
 
-                         'wavelength_raw':np.array([2.0]),
+                         #'wavelength_raw':np.array([2.0]),
                          'monitor1':np.array([0.0]),
 
                          'temperature': np.array([0.0]),
@@ -100,8 +100,8 @@ HDFTranslationFunctions = defaultdict(lambda : [])
 HDFTranslationFunctions['sampleName'] = [['__getitem__',[0]],['decode',['utf8']]]
 HDFTranslationFunctions['mode'] = [['__getitem__',[0]],['decode',['utf8']]]
 HDFTranslationFunctions['startTime'] = [['__getitem__',[0]],['decode',['utf8']]]
-HDFTranslationFunctions['wavelength'] = [['mean',[]]]
-HDFTranslationFunctions['wavelength_raw'] = [['mean',[]]]
+#HDFTranslationFunctions['wavelength'] = [['mean',[]]]
+#HDFTranslationFunctions['wavelength_raw'] = [['mean',[]]]
 HDFTranslationFunctions['twoThetaPosition'] = [['__getitem__',[0]]]
 HDFTranslationFunctions['endTime'] = [['__getitem__',[0]]]
 HDFTranslationFunctions['experimentalIdentifier'] = [['__getitem__',[0]]]
@@ -127,8 +127,8 @@ HDFInstrumentTranslation = {
 HDFInstrumentTranslationFunctions = defaultdict(lambda : [])
 # HDFInstrumentTranslationFunctions['counts'] = [['swapaxes',[1,2]]]
 HDFInstrumentTranslationFunctions['twoThetaPosition'] = [['mean',]]
-HDFInstrumentTranslationFunctions['wavelength'] = [['mean',]]
-HDFInstrumentTranslationFunctions['wavelength_raw'] = [['mean',]]
+#HDFInstrumentTranslationFunctions['wavelength'] = [['mean',]]
+#HDFInstrumentTranslationFunctions['wavelength_raw'] = [['mean',]]
 
 extraAttributes = ['name','fileLocation']
 
@@ -146,8 +146,8 @@ HDFTypes['monochromatorRotationAngle'] = np.array
 HDFTypes['monochromatorTakeoffAngle'] = np.array
 HDFTypes['monochromatorTranslationLower'] = np.array
 HDFTypes['monochromatorTranslationUpper'] = np.array
-HDFTypes['wavelength'] = np.array
-HDFTypes['wavelength_raw'] = np.array
+#HDFTypes['wavelength'] = np.array
+#HDFTypes['wavelength_raw'] = np.array
 HDFTypes['twoThetaPosition'] = np.array
 # HDFTypes['mode'] = lambda x: np.array([np.string_(x)])
 HDFTypes['preset'] = np.array
@@ -173,8 +173,8 @@ HDFUnits = {
     'monitor':'counts',
     'monitor1':'counts',
     'protonBeam':'uA',
-    'wavelength':'A',
-    'wavelength_raw':'A'
+    #'wavelength':'A',
+    #'wavelength_raw':'A'
 }
 
 def getNX_class(x,y,attribute):
