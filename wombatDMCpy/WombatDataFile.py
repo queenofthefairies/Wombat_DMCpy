@@ -127,7 +127,7 @@ def getInstrument(file):
 
 
 @KwargChecker(include=['radius','twoTheta','verticalPosition','twoThetaPosition','forcePowder','wavelength','sampleOffsetZ']+list(HDFTranslation.keys())) #'wavelength'
-def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,wavelength=None,sampleRotationAxis=None,**kwargs):
+def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forcePowder=False,wavelength=None,sampleRotationAxis=None,calibrationFile=None,**kwargs):
     """Load DMC data file, either powder or single crystal data.
     
     
@@ -182,7 +182,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
         df = PowderWombatDataFile(fileLocation,unitCell=unitCell,forcePowder=forcePowder)
     elif fileType.lower() == 'singlecrystal' or T == 'singlecrystal':
         print('loading single xtal')
-        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell, wavelength=wavelength, sampleRotationAxis = sampleRotationAxis)
+        df = SingleCrystalWombatDataFile(fileLocation,unitCell=unitCell, wavelength=wavelength, sampleRotationAxis = sampleRotationAxis, calibrationFile = calibrationFile)
     else:
         df = WombatDataFile(fileLocation,unitCell=unitCell)
 
@@ -244,7 +244,7 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
 
 class WombatDataFile(object):
     @KwargChecker()
-    def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=None, sampleRotationAxis=None): #Wavelength = 2.41
+    def __init__(self, file=None,unitCell=None,forcePowder=False, wavelength=None, calibrationFile=None,sampleRotationAxis=None): #Wavelength = 2.41
         print()
         print('~~~~~~~ DMCpy x Wombat: loading single crystal data file {0} ~~~~~~~'.format(file))
         self.fileType = 'WombatDataFile'
@@ -259,6 +259,11 @@ class WombatDataFile(object):
         self._counts = None
         self._background = None
         self.sampleRotationAxis = sampleRotationAxis
+        self.calibrationFile = calibrationFile
+        if self.calibrationFile:
+            print('Calibration file = {0}'.format(calibrationFile))
+        else:
+            print('No calibration file')
         print('Wavelength = {0} Angstrom'.format(self._wavelength))
         print('Sample rotation axis = {0}'.format(self.sampleRotationAxis))
         
@@ -389,26 +394,31 @@ class WombatDataFile(object):
 
     
     def loadNormalization(self):
-        # Load calibration
-        try:
-            if hasattr(self,'original_files'): # We are working with a converted/merged file
-                name = self.original_files[0]
-            else:
-                name = self.fileName
-            self.normalization, self.normalizationFile = findCalibration(name)
-        except ValueError:
-            self.normalizationFile = 'None'
+        # this isn't really used for Wombat, as Wombat does the efficiency correction at the point of 
+        # loading the data in HDFCounts. But we store the normalisation array here as is done for DMC
 
-        if self.normalizationFile == 'None':
+        # Load calibration
+        if self.calibrationFile == None: 
+            # there is no calibration file
             self.normalization = np.ones(self.countShape,dtype=float)
-        else:
-            
-            if self.fileType.lower() == "singlecrystal": # A3 scan
-                self.normalization = self.normalization#np.repeat(self.normalization[np.newaxis],self.countShape[0],axis=0)
+        else: # there is a calibration file - Wombat calibration files are in HDF5 format
+            filePath = self.calibrationFile
+            # Open file in reading mode
+            with hdf.File(filePath,mode='r') as f:
+                self.normalization = np.array(f.get('entry1/data/signal'))
+                if self.fileType.lower() == "singlecrystal": # A3 scan
+                    self.normalization = np.repeat(self.normalization[np.newaxis],self.countShape[0],axis=0)
+                    self.normalization.shape = self.countShape
+                    self.normalization = self.normalization.reshape(self.countShape)
+
+        #else:
+        #    if self.fileType.lower() == "singlecrystal": # A3 scan
+        #        print('here in A3 scan of normalization')
+        #        self.normalization = self.normalization#np.repeat(self.normalization[np.newaxis],self.countShape[0],axis=0)
                 #self.normalization.shape = self.countShape
                 #self.normalization = self.normalization.reshape(self.countShape)
-            else:
-                self.normalization = self.normalization.reshape(self.countShape)
+        #    else:
+        #        self.normalization = self.normalization.reshape(self.countShape)
 
     def __len__(self):
         if not hasattr(self,'countShape'):
@@ -867,8 +877,32 @@ class WombatDataFile(object):
                 bg = self.background
             else:
                 bg = 0
+            calibrated_counts_bool = 0
             with hdf.File(os.path.join(self.folder,self.fileName),mode='r') as f:
-                return (np.array(f.get(HDFCounts))).reshape(self.countShape[0],128,self.countShape[2])-bg
+                uncalibrated_counts = (np.array(f.get(HDFCounts))).reshape(self.countShape[0],128,self.countShape[2])-bg
+            if self.calibrationFile == None: #there is no calibration file 
+                print('No calibration file')
+                self.normalization = np.ones(self.countShape,dtype=float)
+            else: # there is a calibration file - Wombat calibration files are in HDF5 format
+                filePath = self.calibrationFile
+                # Open file in reading mode
+                with hdf.File(filePath,mode='r') as f:
+                    self.normalization = np.array(f.get('entry1/data/signal'))
+                    if self.fileType.lower() == "singlecrystal": # A3 scan
+                        self.normalization = np.repeat(self.normalization[np.newaxis],self.countShape[0],axis=0)
+                        #self.normalization.shape = self.countShape
+                        #self.normalization = self.normalization.reshape(self.countShape)
+                        #print(len(self.normalization))
+                        #print('self.normalization')
+                        #print(self.normalization)
+                calibrated_counts = np.multiply(self.normalization,uncalibrated_counts)
+                calibrated_counts_bool = 1
+
+            if calibrated_counts_bool == 1:
+                counts = calibrated_counts
+            else:
+                counts = uncalibrated_counts
+            return counts 
         else:
             return self._counts.reshape(self.countShape)
     

@@ -41,7 +41,7 @@ class WombatDataSet(object):
         lengths = np.asarray([len(df) for df in self])
 
         # Collect parameters listed below across data files into self
-        for parameter in ['counts','monitor','twoTheta','correctedTwoTheta','fileName','pixelPosition','wavelength','mask','normalization','normalizationFile','time']:
+        for parameter in ['counts','monitor','twoTheta','correctedTwoTheta','fileName','pixelPosition','wavelength','mask','normalization','time']:#,'normalizationFile','time']:
             if not np.all(lengths==lengths[0]):
                 setattr(self,parameter,np.array([getattr(d,parameter) for d in self],dtype=object))
                 if verbose: print('file length is not the same for all files => dtype=object')
