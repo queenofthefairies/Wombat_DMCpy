@@ -26,7 +26,7 @@ sample_rotation_axis = 'som'
 
 # View 3D axis options, select one
 axis_option = 2 # view scattering plane i.e. Qx-Qy plane 
-#axis_option = 1 # view out-of-plane Qy-Qz
+axis_option = 1 # view out-of-plane Qy-Qz
 #axis_option = 0 # view other out-of-plane Qz-Qx
 
 # Load the data
@@ -47,7 +47,7 @@ ds = WombatDataSet.WombatDataSet([df])
 Viewer = ds.Viewer3D(0.02, 0.02, 0.02, rlu = False)
 
 # Set the color bar limits to 0 and 0.000025
-Viewer.set_clim(0,0.000025)
+Viewer.set_clim(0,0.0005)
 
 # set axes to be equal
 Viewer.ax.axis('equal')
