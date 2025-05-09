@@ -78,6 +78,8 @@ HKL2 = [0,9,-1]
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
 ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
 
+print('\nUB matrix')
+print(ds[0].sample.UB)
 
 """~~~~~~~~~~~~~~~~~~ Reciprocal space viewer in r.l.u. ~~~~~~~~~~~~~~~~~~~~~"""
 # Note: for not-orthogonal unit cells, you will have to "add up" the x and y
