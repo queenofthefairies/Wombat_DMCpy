@@ -20,7 +20,7 @@ sample_name = 'Y2SiO5'
 # directory where the data are
 data_dir = os.getcwd() + '/Y2SiO5_data/'
 # One file at a time please!!!
-file_name = 'WBT0102678.nx.hdf'
+file_name = 'WBT0102676.nx.hdf'
 # Rotation axis in this case was Euler Phi
 sample_rotation_axis = 'ephi'
 
@@ -36,7 +36,7 @@ df = WombatDataFile.loadWombatDataFile(file_path,
 # run the Interactive Viewer
 IA1 = df.InteractiveViewer(sampleRotationAxis = sample_rotation_axis)
 # set colour map limits for detector view
-IA1.set_clim(0,20)
+IA1.set_clim(0,78)
 # set colour map limits for z integrated data
 IA1.set_clim_zIntegrated(0,1000)
 # set colour map limits for 2theta integrated data
@@ -48,7 +48,7 @@ IA1.fig.savefig('{0}_{1}_{2}_scan_detector_view.png'.format(sample_name,file_nam
 plt.show()
 
 # to plot a particular step
-step_number = 21
+step_number = 566
 # the function is called "plot spectrum" because it's borrowed from a data 
 # visualisation thing for a spectrometer 
 # so don't @ me!

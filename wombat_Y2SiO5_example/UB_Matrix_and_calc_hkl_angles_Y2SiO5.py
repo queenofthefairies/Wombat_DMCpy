@@ -75,6 +75,8 @@ q1 = [-1.714,-0.4618,-0.069]
 q2 = [-3.971,-1.7614,-0.144]
 HKL1 = [4,0,-2]
 HKL2 = [4,0,4]
+#HKL1 = [-4,0,2]
+#HKL2 = [-4,0,-4]
 
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
 ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
