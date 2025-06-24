@@ -160,6 +160,9 @@ def loadWombatDataFile(fileLocation=None,fileType='Unknown',unitCell=None,forceP
     elif sampleRotationAxis == 'som':
         A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
 
+    elif sampleRotationAxis == 'msom':
+        A3 = shallowRead([fileLocation],['sample_probe_omega'])[0]['sample_probe_omega']
+
     else:
         # sample rotation axis not specified, assuming it is sample stage omega
         A3 = shallowRead([fileLocation],['sample_stage_omega'])[0]['sample_stage_omega']
@@ -352,6 +355,9 @@ class WombatDataFile(object):
 
             elif self.sampleRotationAxis == 'eom':
                 self.sample.rotation_angle = 'euler_omega'
+            
+            elif self.sampleRotationAxis == 'msom':
+                self.sample.rotation_angle = 'sample_probe_omega'
 
             elif self.sampleRotationAxis == 'som':
                 self.sample.rotation_angle = 'sample_stage_omega'
@@ -448,6 +454,8 @@ class WombatDataFile(object):
             self.sample.rotation_angle = 'euler_omega'
         elif self.sampleRotationAxis == 'som':
             self.sample.rotation_angle = 'sample_stage_omega'
+        elif self.sampleRotationAxis == 'msom':
+            self.sample.rotation_angle = 'sample_probe_omega'
         else:
             self.sample.rotation_angle = 'sample_stage_omega'
         if A3 is None:
