@@ -99,6 +99,9 @@ print('\nUB matrix')
 print(ds[0].sample.UB)
 
 
+print('\n B matrix')
+print(ds[0].sample.B)
+
 # To find the A3, A4 and z values of a reflection, we can use calcualteHKLToA3A4Z
 # on DMC:
 #   A3 = sample rotation angle (degrees) NB: check which axes you're rotating
