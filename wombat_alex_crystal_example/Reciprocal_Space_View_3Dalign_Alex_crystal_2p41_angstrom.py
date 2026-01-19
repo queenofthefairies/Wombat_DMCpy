@@ -15,7 +15,7 @@ Dataset = PMT diffuse feasibility 2025-04-10
 """
 import sys
 # add location of Wombat DMCpy scripts
-sys.path.append('J:\wombat_instrument_work\eulerian_cradle\Wombat_DMCpy')
+sys.path.append('J:\wombat_instrument_work\DMCpy_for_wombat\Wombat_DMCpy')
 import os
 from wombatDMCpy import WombatDataFile, WombatDataSet, _tools
 import numpy as np
@@ -78,8 +78,22 @@ HKL2 = [0,9,-1]
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
 ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
 
-print('\nUB matrix')
+print('\nUB matrix from wombatDMCpy')
 print(ds[0].sample.UB)
+print(type(ds[0].sample.UB))
+
+print('using UB matrix from Int3D (sign corrected)')
+int3D_UB_matrix = [[-0.01283464021981, -0.05588710308075, -0.00410178117454],
+                   [-0.04498909413815,  0.00337106804363, -0.06822432577610],
+                   [0.12217384576797,  -0.00462971441448, -0.00016237422824]]
+
+sign_matrix = [[+1, -1, +1],
+               [-1, +1, -1],
+               [+1, -1, +1]]
+
+ds[0].sample.UB = 2*np.pi*np.multiply(np.array(sign_matrix), np.array(int3D_UB_matrix))
+print(ds[0].sample.UB)
+
 
 """~~~~~~~~~~~~~~~~~~ Reciprocal space viewer in r.l.u. ~~~~~~~~~~~~~~~~~~~~~"""
 # Note: for not-orthogonal unit cells, you will have to "add up" the x and y
