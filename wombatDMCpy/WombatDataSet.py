@@ -1519,7 +1519,65 @@ class WombatDataSet(object):
             s.ROT = rot
         
             s.projectionVectors = np.array([s.P1,s.P2,s.P3]).T
+        print('UB matrix:')
+        print(self[0].sample.UB)
 
+    def useUBmatrixFromInt3D(self,UBint3D, echi = 0, ephi =0, 
+                             signMatrix = np.array([[+1, -1, +1],
+                                                    [-1, +1, -1],
+                                                    [+1, -1, +1]])
+                            ):
+        """use supplied UB matrix from Int3D. convert between different
+        rotation and reciprocal space conventions."
+        
+        Args:
+
+            - UBint3D (array): int3D UB matrix
+
+            - echi (float): echi angle in DEGREES if using tilt or Eulerian cradle to be 
+                            in a specific scattering plane
+
+            - ephi (float): ephi angle in DEGREES if using tilt or Eulerian cradle to be 
+                            in a specific scattering plane
+
+            - signMatrix (array): sign matrix which takes care of signs from 
+                                  different rotation sign conventions in Int3D
+                                  c.f. wombatdmcpy
+
+        """
+        print('\n~~~~~~~ using UB matrix from Int3D (sign corrected) ~~~~~~~')
+
+        # if sample not tilted (echi = ephi = 0), then only correct for different
+        # sense of rotation and 2pi reciprocal space conversion
+        if (echi == 0 and ephi == 0):
+            print('no Eulerian cradle or sample stage tilt correction applied')
+            new_int3D_matrix = 2*np.pi*np.multiply(signMatrix, UBint3D)
+
+        # or apply tilt correction from non-zero echi/ephi first
+        else:
+            print('Eulerian cradle / sample stage tilt correction applied')
+            print('echi: {0:.2f} degrees, ephi: {1:.2f} degrees'.format(echi, ephi))
+            chi_angle = echi*np.pi/180 # convert echi to radians
+            # right-handed chi rotation matrix
+            chi_rot_matrix = np.array([[np.cos(chi_angle), 0, np.sin(chi_angle)],
+                                       [0, 1, 0],
+                                       [-np.sin(chi_angle), 0, np.cos(chi_angle)]])
+
+
+            phi_angle = ephi*np.pi/180 # convert ephi to radians
+            # right-handed phi rotation matrix
+            phi_rot_matrix = np.array([[np.cos(phi_angle), np.sin(phi_angle), 0],
+                                       [-np.sin(phi_angle), np.cos(phi_angle), 0],
+                                       [0, 0, +1]])
+
+            new_UB_for_chi0_phi0 = np.matmul(chi_rot_matrix, np.matmul(phi_rot_matrix, UBint3D))
+            new_int3D_matrix = 2*np.pi*np.multiply(signMatrix, new_UB_for_chi0_phi0)
+
+        # attribute new UB matrix to every datafile in the dataset
+        for s in self.sample:         
+                s.UB = new_int3D_matrix
+        print('UB matrix:')
+        print(self[0].sample.UB)
 
     def peakSearch(self,threshold=30,dx=0.04,dy=0.04,dz=0.08,distanceThreshold=0.15):
         """ Search for peaks in data set

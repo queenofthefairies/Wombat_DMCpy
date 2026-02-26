@@ -91,7 +91,25 @@ sign_matrix = [[+1, -1, +1],
                [-1, +1, -1],
                [+1, -1, +1]]
 
-ds[0].sample.UB = 2*np.pi*np.multiply(np.array(sign_matrix), np.array(int3D_UB_matrix))
+chi_angle_deg = 0
+chi_angle = chi_angle_deg*np.pi/180
+
+chi_rot_matrix = np.array([[np.cos(chi_angle), 0, np.sin(chi_angle)],
+                            [0, 1, 0],
+                            [-np.sin(chi_angle), 0, np.cos(chi_angle)]])
+
+phi_angle_deg = 0
+phi_angle = phi_angle_deg*np.pi/180
+
+phi_rot_matrix = np.array([[np.cos(phi_angle), np.sin(phi_angle), 0],
+                            [-np.sin(phi_angle), np.cos(phi_angle), 0],
+                            [0, 0, +1]])
+
+new_UB_for_chi0_phi0 = np.matmul(chi_rot_matrix, np.matmul(phi_rot_matrix, int3D_UB_matrix))
+#new_UB_for_chi0_phi0 = np.matmul(UB_transformation_matrix,int3D_UB_matrix)
+ds[0].sample.UB = 2*np.pi*np.multiply(sign_matrix, new_UB_for_chi0_phi0)
+print('using UB matrix from Int3D (sign corrected)')
+#ds[0].sample.UB = 2*np.pi*np.multiply(np.array(sign_matrix), np.array(int3D_UB_matrix))
 print(ds[0].sample.UB)
 
 
