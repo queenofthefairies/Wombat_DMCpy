@@ -1149,3 +1149,60 @@ def findOrthogonalBasis(v1,v2,v3,B):
     p2Q = np.dot(B,p2)
     p3 = LengthOrder(np.dot(np.linalg.inv(B),np.cross(p1Q,p2Q)))      
     return np.asarray([p1,p2,p3])
+
+def readCryFileFromInt3D(cry_file_path):
+        """Gets unit cell params and UB matrix from Int3D .cry file"
+        
+        Args:
+
+            - cry_file_path: path to int3D crystal file
+        """
+        with open(cry_file_path) as f:
+            lines = f.readlines()
+        
+        unit_cell_params_found = False
+        UB_matrix_found = False
+        for i in range(len(lines)):
+            line = lines[i]
+            # get unit cell parameters
+            if line[0:15] == 'CELL_PARAMETERS':
+                unit_cell_params = line[15:].split()
+                unit_cell_params_list = []
+                for param in unit_cell_params:
+                    param_float = float(param)
+                    unit_cell_params_list.append(param_float)
+                unit_cell = np.array(unit_cell_params_list)
+                print()
+                print('unit cell parameters loaded from .cry file')
+                print(unit_cell)
+                unit_cell_params_found = True
+            elif line[0:4] == 'CELL':
+                unit_cell_params = line[4:].split()
+                unit_cell_params_list = []
+                for param in unit_cell_params:
+                    param_float = float(param)
+                    unit_cell_params_list.append(param_float)
+                unit_cell = np.array(unit_cell_params_list)
+                print()
+                print('unit cell parameters loaded from .cry file')
+                print(unit_cell)
+                unit_cell_params_found = True
+            # get UB matrix
+            elif line[0:5] == 'UBMAT':
+                UB_line_1 = lines[i+1].split()
+                UB_line_2 = lines[i+2].split()
+                UB_line_3 = lines[i+3].split()
+                int3D_UB_matrix = np.array([[float(UB_line_1[0]), float(UB_line_1[1]), float(UB_line_1[2])],
+                                            [float(UB_line_2[0]), float(UB_line_2[1]), float(UB_line_2[2])],
+                                            [float(UB_line_3[0]), float(UB_line_3[1]), float(UB_line_3[2])]])
+                print()
+                print('UB matrix loaded from .cry file')
+                print(int3D_UB_matrix)
+                UB_matrix_found = True
+            
+        if not UB_matrix_found:
+            raise Exception('no UB matrix found in .cry file')
+        if not unit_cell_params_found:
+            raise Exception('no unit cell parameters found in .cry file')
+            
+        return unit_cell, int3D_UB_matrix

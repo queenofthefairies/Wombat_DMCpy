@@ -14,9 +14,10 @@ Test data: Y2SiO5 dataset
 """
 import sys
 # add location of Wombat DMCpy scripts
-sys.path.append('J:\wombat_instrument_work\eulerian_cradle\Wombat_DMCpy')
+sys.path.append('J:\wombat_instrument_work\DMCpy_for_wombat\Wombat_DMCpy')
 import os
 from wombatDMCpy import WombatDataFile, WombatDataSet, _tools
+from wombatDMCpy._tools import readCryFileFromInt3D
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -32,9 +33,13 @@ file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf']
 # Rotation axis in this case was Euler Phi
 sample_rotation_axis = 'ephi'
 # For plotting in r.l.u. you need to supply a unit cell
-# here we use the C2/c unit cell for Y2SiO5
+##### Load .cry file from Int3D with unit cell parameters and UB matrix
+unit_cell, int3D_UB_matrix = readCryFileFromInt3D('UB1.cry')
+
+# Or manually input the unit cell parameters.
+# Here we use the C2/c unit cell for Y2SiO5
 # format is [a, b, c, alpha, beta, gamma]
-unit_cell = np.array([14.406, 6.728, 10.421, 90, 122.194, 90]) 
+#unit_cell = np.array([14.406, 6.728, 10.421, 90, 122.194, 90]) 
 
 # View 3D axis options, select one
 axis_option = 2 # view scattering plane defined by projection vectors
@@ -55,12 +60,26 @@ for i in range(len(file_name_list)):
                                            sampleRotationAxis = sample_rotation_axis)
     data_file_list.append(df)
 
-
-
-"""~~~~~~ UB Matrix and aligning data to projection vectors in r.l.u. ~~~~~~~"""
 # Use above data files in data set. Must be inserted as a list
 ds = WombatDataSet.WombatDataSet(data_file_list)
 
+"""~~~~~~ UB Matrix and aligning data to projection vectors in r.l.u. ~~~~~~~"""
+######## Use UB matrix from Int3D (.cry file loaded earlier in script)
+
+# or manually load UB matrix
+#int3D_UB_matrix = np.array([[-0.07128796726465, -0.00493851210922, -0.00514440611005],
+#                            [0.04053531959653, -0.00255302991718,  0.11326986551285],
+#                            [-0.00167354044970,  0.14852857589722,  0.00177592528053]])
+
+chi_angle_deg = 0.00 # only use if omega scan data acquired with nonzero echi
+phi_angle_deg = 0.00 # only use if omega scan data acquired with nonzero ephi
+om_angle_deg = 28.00 # only use if phi scan data acquired with nonzero eom
+ds.useUBmatrixFromInt3D(int3D_UB_matrix, 
+                        eom = om_angle_deg, 
+                        echi = chi_angle_deg, 
+                        ephi = phi_angle_deg)
+
+######## Alternative method to find UB matrix
 # Before you get to this bit, you need to index two peaks by hand 
 # 1. use the reciprocal space viewer (Qx, Qy, Qz in inv Angstroms) in the 
 #    other script Reciprocal_Space_View_invAA_Y2SiO5.py
@@ -70,15 +89,15 @@ ds = WombatDataSet.WombatDataSet(data_file_list)
 # 4. then come back here with your Qx, Qy, Qz and corresponding hypothesised h,k,l
 
 # Define Q coordinates and HKL for the coordinates.
-q1 = [-1.714,-0.4618,-0.069]
-q2 = [-3.971,-1.7614,-0.144]
-HKL1 = [4,0,-2]
-HKL2 = [4,0,4]
-#HKL1 = [-4,0,2] # other possibility given multiplicity of reflections
-#HKL2 = [-4,0,-4]
+#q1 = [-1.714,-0.4618,-0.069]
+#q2 = [-3.971,-1.7614,-0.144]
+#HKL1 = [4,0,-2]
+#HKL2 = [4,0,4]
+###HKL1 = [-4,0,2] # other possibility given multiplicity of reflections
+###HKL2 = [-4,0,-4]
 
 # this function uses two coordinates in Q space and align them to corrdinates in HKL space
-ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
+#ds.alignToRefs(q1 = q1, q2 = q2, HKL1 = HKL1, HKL2 = HKL2)
 
 
 """~~~~~~~~~~~~~~~~~~ Reciprocal space viewer in r.l.u. ~~~~~~~~~~~~~~~~~~~~~"""

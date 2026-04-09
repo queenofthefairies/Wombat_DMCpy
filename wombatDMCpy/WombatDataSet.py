@@ -1522,7 +1522,7 @@ class WombatDataSet(object):
         print('UB matrix:')
         print(self[0].sample.UB)
 
-    def useUBmatrixFromInt3D(self,UBint3D, echi = 0, ephi =0, 
+    def useUBmatrixFromInt3D(self,UBint3D, echi = 0, ephi =0, eom = 0,
                              signMatrix = np.array([[+1, -1, +1],
                                                     [-1, +1, -1],
                                                     [+1, -1, +1]])
@@ -1540,6 +1540,9 @@ class WombatDataSet(object):
             - ephi (float): ephi angle in DEGREES if using tilt or Eulerian cradle to be 
                             in a specific scattering plane
 
+            - eom (float): eom angle in DEGREES if using tilt or Eulerian cradle to be 
+                            in a specific scattering plane
+
             - signMatrix (array): sign matrix which takes care of signs from 
                                   different rotation sign conventions in Int3D
                                   c.f. wombatdmcpy
@@ -1549,14 +1552,21 @@ class WombatDataSet(object):
 
         # if sample not tilted (echi = ephi = 0), then only correct for different
         # sense of rotation and 2pi reciprocal space conversion
-        if (echi == 0 and ephi == 0):
+        if (echi == 0 and ephi == 0 and eom == 0):
             print('no Eulerian cradle or sample stage tilt correction applied')
             new_int3D_matrix = 2*np.pi*np.multiply(signMatrix, UBint3D)
 
         # or apply tilt correction from non-zero echi/ephi first
         else:
             print('Eulerian cradle / sample stage tilt correction applied')
-            print('echi: {0:.2f} degrees, ephi: {1:.2f} degrees'.format(echi, ephi))
+            print('eom: {0:.2f} degrees, echi: {1:.2f} degrees, ephi: {2:.2f} degrees'.format(eom, echi, ephi))
+
+            om_angle = eom*np.pi/180 # convert eom to radians
+            # right-handed chi rotation matrix
+            om_rot_matrix = np.array([[np.cos(om_angle), np.sin(om_angle), 0],
+                                      [-np.sin(om_angle), np.cos(om_angle), 0],
+                                      [0, 0, 1]])
+            
             chi_angle = echi*np.pi/180 # convert echi to radians
             # right-handed chi rotation matrix
             chi_rot_matrix = np.array([[np.cos(chi_angle), 0, np.sin(chi_angle)],
@@ -1570,8 +1580,8 @@ class WombatDataSet(object):
                                        [-np.sin(phi_angle), np.cos(phi_angle), 0],
                                        [0, 0, +1]])
 
-            new_UB_for_chi0_phi0 = np.matmul(chi_rot_matrix, np.matmul(phi_rot_matrix, UBint3D))
-            new_int3D_matrix = 2*np.pi*np.multiply(signMatrix, new_UB_for_chi0_phi0)
+            new_UB_for_eom0_chi0_phi0 = np.matmul(om_rot_matrix, np.matmul(chi_rot_matrix, np.matmul(phi_rot_matrix, UBint3D)))
+            new_int3D_matrix = 2*np.pi*np.multiply(signMatrix, new_UB_for_eom0_chi0_phi0)
 
         # attribute new UB matrix to every datafile in the dataset
         for s in self.sample:         
