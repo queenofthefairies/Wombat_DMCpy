@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # sample name (just used when saving figs)
 sample_name = 'Y2SiO5'
 # directory where the data are
-data_dir = 'Z:/cycle/160/data/sics/'
+data_dir = 'data/' #'Z:/cycle/160/data/sics/'
 # One file at a time please!!!
 file_name = 'WBT0102676.nx.hdf'
 # Rotation axis options: som, eom, ephi, epsi, msom

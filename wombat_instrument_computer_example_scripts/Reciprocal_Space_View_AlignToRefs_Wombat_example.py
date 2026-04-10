@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 # sample name (just used when saving figs)
 sample_name = 'Y2SiO5'
 # directory where the data are
-data_dir = 'Z:/cycle/160/data/sics/'
+data_dir = 'data/' #'Z:/cycle/160/data/sics/'
 # currently all HDF must be of the same dimension
 # here 676 and 677 both have 600 steps but 678 has 601 steps so we leave it out
 file_name_list = ['WBT0102676.nx.hdf', 'WBT0102677.nx.hdf']
