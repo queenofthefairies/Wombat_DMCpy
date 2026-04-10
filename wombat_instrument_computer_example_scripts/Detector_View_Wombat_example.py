@@ -1,3 +1,4 @@
+# the virtual environment to run this script in is wombatsinglecrystal
 """ wombat DMCpy test script for single data files
 this script tests functionality of the DMCpy package, wombat edition,
 
